@@ -1,0 +1,3 @@
+[submodule "ext/nsfw_model"]
+	path = ext/nsfw_model
+	url = https://github.com/GantMan/nsfw_model.git
