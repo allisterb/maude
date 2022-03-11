@@ -1,2 +1,4 @@
+click
+colors
 pyfiglet
 perspective
