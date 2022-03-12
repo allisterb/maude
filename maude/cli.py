@@ -1,20 +1,22 @@
 """CLI interface for maude"""
 
-from ast import arg
 import os
 import sys
 import threading
 import warnings
 import logging
-from logging import info, error, debug
-from pyfiglet import Figlet
-#from ..ext.nsfw_model.nsfw_detector import predict
 import kbinput
 import click
+
+from logging import info, error, debug
+from pyfiglet import Figlet
 from rich import print
 from rich.logging import RichHandler
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+sys.path.append(os.path.abspath('ext'))
 
 def set_log_level(ctx, param, value):
     if (value):
@@ -32,16 +34,19 @@ def print_logo():
 @click.option('--debug', is_flag=True, callback=set_log_level, expose_value=False)
 def cli():
     print_logo()
+    print(os.path.abspath(os.path.join('ext')))
     threading.Thread(target=kbinput.kb_capture_thread, args=(), name='kb_capture_thread', daemon=True).start()
 
 @cli.group()
 def classify(): pass
 
-@classify.command()
+@classify.command('image')
 @click.argument('model')
-def image(model):
-    print(model)
+def classify_image(model):
+    if model == 'nfsw':
+        from classifiers import nfsw_model
+        c = nfsw_model.Classifier('gg', [])
+        
 
-if __name__ == '__main__':
-    cli()
+if __name__ == '__main__': cli()
 
