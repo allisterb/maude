@@ -23,14 +23,11 @@ def set_log_level(ctx, param, value):
     import logging
     from rich.logging import RichHandler
     if (value):
+        maude_global.DEBUG = True
         logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, show_path= True)])
         info("Debug mode enabled.")
     else:
         logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO, handlers=[RichHandler(rich_tracebacks=True, show_path=False)])
-        #import tensorflow as tf
-        #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}  to control TensorFlow 2 logging level
-        #tf.get_logger().setLevel('INFO')
-        #tf.logging.set_verbosity(tf.logging.INFO)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
 
 def print_logo():
     """Print program logo."""
@@ -51,10 +48,10 @@ def classify(): pass
 @click.argument('filename', type=click.Path(exists=True))
 def classify_image(model, filename):
     if model == 'nfsw':
-        from classifiers import nfsw_model
-        c = nfsw_model.Classifier(filename, [])
+        from classifiers import nfsw_detect
+        c = nfsw_detect.Classifier(filename, [])
     else:
-        error('Unrecognized model', model)
+        error('Unknown model: %s', model)
         sys.exit(1)
 
 if __name__ == '__main__': cli()

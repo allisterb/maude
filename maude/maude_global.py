@@ -1,5 +1,7 @@
 import os
 
+DEBUG = False
+
 MAUDE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 KBINPUT = False
