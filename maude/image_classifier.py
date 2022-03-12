@@ -1,10 +1,5 @@
-import sys
 import abc
-import math
-import time
-from queue import Queue
 from logging import info, error, warn, debug
-import kbinput
 from PIL import Image
 
 class ImageClassifier(abc.ABC):
