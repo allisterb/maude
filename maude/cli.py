@@ -6,18 +6,22 @@ import threading
 import warnings
 
 import click
+import maude_global
 
 from logging import info, error, debug
 from pyfiglet import Figlet
 from rich import print
-
-import maude_global
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Needs corresponding entry in PYTHONPATH or .env file
 sys.path.append(os.path.join(maude_global.MAUDE_DIR, 'ext'))
+
+if maude_global.DEBUG:
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # or any {'0', '1', '2'}  to control TensorFlow 2 logging level
+else:
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}  to control TensorFlow 2 logging level
 
 def set_log_level(ctx, param, value):
     import logging
@@ -32,7 +36,7 @@ def set_log_level(ctx, param, value):
 def print_logo():
     """Print program logo."""
     fig = Figlet(font='chunky')
-    print('[cyan]' + fig.renderText('maud3') + '[/cyan]',  'v0.1' + os.linesep)
+    print('[cyan]' + fig.renderText('maud3') + '[/cyan]',  '0.1' + os.linesep)
     
 @click.group()
 @click.option('--debug', is_flag=True, callback=set_log_level, expose_value=False)
@@ -50,9 +54,10 @@ def classify_image(model, filename):
     if model == 'nfsw':
         from classifiers import nfsw_detect
         c = nfsw_detect.Classifier(filename, [])
+        d = c.classify()
+        print(d)
     else:
         error('Unknown model: %s', model)
         sys.exit(1)
 
 if __name__ == '__main__': cli()
-
