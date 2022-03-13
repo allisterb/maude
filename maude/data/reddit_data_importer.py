@@ -2,8 +2,7 @@ import os, sys
 import abc
 from logging import info, error, warn, debug
 
-from cli_util import *
-from data_importer import DataImporter
+from core.data_importer import DataImporter
 
 class DataImporter(DataImporter):
     """Import topic, comment and image data from Reddit."""

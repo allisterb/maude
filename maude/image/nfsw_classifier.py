@@ -1,9 +1,8 @@
 import os
-import sys
 
 from logging import info, error, debug, warn
 from maude_global import MAUDE_DIR
-from image_classifier import ImageClassifier
+from core.image_classifier import ImageClassifier
 from nsfw_model.nsfw_detector import predict
 
 class Classifier(ImageClassifier):

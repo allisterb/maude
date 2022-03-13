@@ -1,2 +1,2 @@
 @echo off
-python maude\cli.py %*
+python maude\main.py %*

@@ -1,4 +1,19 @@
+from logging import info
+
 from rich.highlighter import RegexHighlighter
+
+import maude_global
+
+def set_log_level(ctx, param, value):
+    import logging
+    from rich.logging import RichHandler
+    from cli.maude_logging import MaudeHighlighter
+    if (value):
+        maude_global.DEBUG = True
+        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path= True)])
+        info("Debug mode enabled.")
+    else:
+        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path=False)])
 
 def _combine_regex(*regexes: str) -> str:
     """Combine a number of regexes in to a single regex.
@@ -30,3 +45,4 @@ class MaudeHighlighter(RegexHighlighter):
             r"(?P<url>(file|https|http|ws|wss)://[-0-9a-zA-Z$_+!`(),.?/;:&=%#]*)",
         ),
     ]
+
