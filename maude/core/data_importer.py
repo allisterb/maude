@@ -2,8 +2,6 @@ import os, sys
 import abc
 from logging import info, error, warn, debug
 
-from cli_util import *
-
 class DataImporter(abc.ABC):
     """Import topic, comment and image data for training moderation models."""
 
