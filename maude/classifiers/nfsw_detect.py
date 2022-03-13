@@ -1,8 +1,6 @@
 import os
 import sys
 
-import tensorflow as tf
-
 from logging import info, error, debug, warn
 from maude_global import MAUDE_DIR
 from image_classifier import ImageClassifier

@@ -1,6 +1,5 @@
 """CLI interface for maude"""
 
-from email.policy import default
 import os
 import sys
 import threading
@@ -90,11 +89,13 @@ def image_classify(model, filename):
 
 @text.command('similarity')
 @click.argument('model', default='spacy')
-@click.argument('filename', type=click.Path(exists=True))
-def text_similarity(model, filename):
+@click.argument('sentence1')
+@click.argument('sentence2')
+def text_similarity(model, sentence1, sentence2):
     if model == 'spacy':
-        from text import spacy_text_similarity
-        c = spacy_text_similarity.SpacyTextSimilarity()
+        from text.spacy_text_similarity import TextSimilarity
+        spacy = TextSimilarity()
+        print(spacy.similarity(sentence1, sentence2))
     else:
         error('Unknown model: %s', model)
         sys.exit(1)
