@@ -3,7 +3,7 @@ import abc
 from logging import info, error, warn, debug
 from PIL import Image
 
-from cli_util import *
+from cli.util import *
 
 class ImageClassifier(abc.ABC):
     """An image classifier using a neural network or other computer vision classification model."""

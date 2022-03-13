@@ -1,5 +1,5 @@
 import spacy
-from timer import begin
+from base.timer import begin
 
 nlp = None
 

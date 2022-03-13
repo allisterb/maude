@@ -1,10 +1,10 @@
 import os, sys
 
 from text.spacy import nlp
-from timer import begin
+from base.timer import begin
 
 from logging import info, error, warn, debug
-from text_similarity import TextSimilarity
+from core.text_similarity import TextSimilarity
 
 class TextSimilarity(TextSimilarity):
     def __init__(self, args=[]):
