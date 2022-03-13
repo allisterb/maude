@@ -9,15 +9,15 @@ from cli.util import *
     
 @click.group()
 @click.option('--debug', is_flag=True, callback=set_log_level, expose_value=False)
-def cli(): pass
+def parse(): pass
     
-@cli.group()
+@parse.group()
 def image(): pass
 
-@cli.group()
+@parse.group()
 def text(): pass
 
-@cli.group('import')
+@parse.group('import')
 def data_import(): pass
 
 @image.command('classify')
@@ -53,5 +53,3 @@ def text_similarity(model, sentence1, sentence2):
 def data_import_reddit(client_id, client_secret, client_user, client_pass):
    from data.reddit_data_importer import DataImporter
    importer = DataImporter(client_id, client_secret, client_user, client_pass)
-
-if __name__ == '__main__': cli()

@@ -53,7 +53,7 @@ if __name__ == '__main__':
     print_logo()
     threading.Thread(target=kb_capture_thread, args=(), name='kb_capture_thread', daemon=True).start()
     
-    # Command-line argument handling starts here
-    from cli.commands import cli
-    cli()
+    # Command-line argument parsing starts here
+    from cli.commands import parse
+    parse()
     
