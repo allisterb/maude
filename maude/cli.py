@@ -75,6 +75,9 @@ def image(): pass
 @cli.group()
 def text(): pass
 
+@cli.group('import')
+def data_import(): pass
+
 @image.command('classify')
 @click.argument('model')
 @click.argument('filename', type=click.Path(exists=True))
@@ -99,5 +102,15 @@ def text_similarity(model, sentence1, sentence2):
         print(spacy.similarity(sentence1, sentence2))
     else:
         exit_with_error(f'Unknown model: {model}.')
+
+@data_import.command('reddit')
+@click.argument('client_id', envvar='MAUDE_REDDIT_CLIENT_ID')
+@click.argument('client_secret', envvar='MAUDE_REDDIT_CLIENT_SECRET')
+@click.argument('client_user', envvar='MAUDE_REDDIT_CLIENT_USER')
+@click.argument('client_pass', envvar='MAUDE_REDDIT_CLIENT_PASS')
+
+def data_import_reddit(client_id, client_secret, client_user, client_pass):
+   from data.reddit_data_importer import DataImporter
+   importer = DataImporter(client_id, client_secret, client_user, client_pass)
 
 if __name__ == '__main__': cli()

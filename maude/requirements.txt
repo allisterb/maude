@@ -4,3 +4,4 @@ rich
 pyfiglet
 perspective
 spacy
+praw
