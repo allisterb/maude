@@ -1,16 +1,16 @@
 """CLI interface for maude"""
 
-import os
-import sys
+import os, sys
 import threading
 import warnings
+from logging import info, error, debug
 
 import click
-import maude_global
-
-from logging import info, error, debug
 from pyfiglet import Figlet
 from rich import print
+
+import maude_global
+from cli_util import *
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -49,17 +49,18 @@ else:
 def set_log_level(ctx, param, value):
     import logging
     from rich.logging import RichHandler
+    from cli_logging import MaudeHighlighter
     if (value):
         maude_global.DEBUG = True
-        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, show_path= True)])
+        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path= True)])
         info("Debug mode enabled.")
     else:
-        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO, handlers=[RichHandler(rich_tracebacks=True, show_path=False)])
+        logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path=False)])
 
 def print_logo():
     """Print program logo."""
     fig = Figlet(font='chunky')
-    print('[cyan]' + fig.renderText('maud3') + '[/cyan]',  '0.1' + os.linesep)
+    print('[cyan]' + fig.renderText('maud3') + '[/cyan]', '0.1' + os.linesep)
     
 # Command-line argument handling starts here
 @click.group()
@@ -79,9 +80,9 @@ def text(): pass
 @click.argument('filename', type=click.Path(exists=True))
 def image_classify(model, filename):
     if model == 'nfsw':
-        from classifiers import nfsw_detect
-        c = nfsw_detect.Classifier(filename, [])
-        d = c.classify()
+        from image.nfsw_classifier import Classifier
+        nfsw = Classifier(filename, [])
+        d = nfsw.classify()
         print(d)
     else:
         error('Unknown model: %s', model)
@@ -93,11 +94,10 @@ def image_classify(model, filename):
 @click.argument('sentence2')
 def text_similarity(model, sentence1, sentence2):
     if model == 'spacy':
-        from text.spacy_text_similarity import TextSimilarity
+        from text.spacy_similarity import TextSimilarity
         spacy = TextSimilarity()
         print(spacy.similarity(sentence1, sentence2))
     else:
-        error('Unknown model: %s', model)
-        sys.exit(1)
+        exit_with_error(f'Unknown model: {model}.')
 
 if __name__ == '__main__': cli()
