@@ -44,14 +44,14 @@ def text_similarity(model, sentence1, sentence2):
 
 @data_import.command('reddit')
 @click.argument('subreddit', required = True)
-@click.argument('sort', required = False, default = 'hot')
-@click.argument('filter', required = False, default = 'all')
-@click.argument('limit', required = False, default = 100)
+@click.argument('sort', required = False, type=click.Choice(['hot', 'top', 'new'], case_sensitive=False), default = 'hot')
+@click.argument('time_filter', required = False, type=click.Choice(['hour', 'year', 'all', 'week', 'month', 'day'], case_sensitive=False), default = 'all')
+@click.argument('limit', required = False, type=int, default = 100)
 @click.argument('client_id', envvar='MAUDE_REDDIT_CLIENT_ID')
 @click.argument('client_secret', envvar='MAUDE_REDDIT_CLIENT_SECRET')
 @click.argument('client_user', envvar='MAUDE_REDDIT_CLIENT_USER')
 @click.argument('client_pass', envvar='MAUDE_REDDIT_CLIENT_PASS')
-def data_import_reddit(subreddit, sort, filter, limit, client_id, client_secret, client_user, client_pass):
+def data_import_reddit(subreddit, sort, time_filter, limit, client_id, client_secret, client_user, client_pass):
    from data.reddit_data_importer import DataImporter
    importer = DataImporter(client_id, client_secret, client_user, client_pass)
-   importer.import_data(subreddit, sort, filter, limit)
+   importer.import_data(subreddit, sort, time_filter, limit)

@@ -1,6 +1,7 @@
 from logging import info, error, warn, debug
 
 import praw
+from praw.models import SubredditHelper
 from base.timer import begin
 from core.data_importer import DataImporter
 
@@ -30,15 +31,15 @@ class DataImporter(DataImporter):
         debug(f'Import args are: {args}')
         subreddit_name = args[0]
         sort = args[1]
-        filter = args[2]
+        time_filter = args[2]
         submission_limit = args[3]
-        subreddit = self.reddit.subreddit(subreddit_name)
+        subreddit:SubredditHelper = self.reddit.subreddit(subreddit_name)
         submissions = []
         with begin("Fetching submissions") as op:
-            submissions = subreddit.top(filter)
+            submissions = subreddit.top(time_filter, limit=submission_limit) if sort == 'top' else subreddit.hot(limit=submission_limit) if sort == 'hot' else subreddit.new(time_filter, limit=submission_limit)
             op.complete()
         for submission in submissions:
-            print(submission)
+            print(submission.title)
 
         
 
