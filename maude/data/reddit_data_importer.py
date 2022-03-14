@@ -43,11 +43,8 @@ class DataImporter(DataImporter):
         submissions:list[Submission] = []
         comments:dict[str, list[Comment]] = {}
         
-        with begin(f'Fetching {submission_limit} {sort} submissions for subreddit {subreddit_name}') as op:
+        with begin(f'Fetching data for {submission_limit} {sort} submission(s)') as op:
             submissions = subreddit.top(time_filter, limit=submission_limit) if sort == 'top' else subreddit.hot(limit=submission_limit) if sort == 'hot' else subreddit.new(limit=submission_limit)
-            op.complete()
-
-        with begin('Fetching comment data for submissions') as op:
             for submission in submissions:
                 if maude_global.KBINPUT:
                     op.abandon()
@@ -56,5 +53,5 @@ class DataImporter(DataImporter):
                 comments[submission.title] = submission.comments.list()
             op.complete()
 
-        print(serialize_to_json(comments))
+        print(serialize_to_json(c.body for c in comments))
         
