@@ -5,3 +5,4 @@ pyfiglet
 perspective
 spacy
 praw
+multiaddr
