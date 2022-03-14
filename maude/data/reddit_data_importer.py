@@ -1,7 +1,8 @@
 from logging import info, error, warn, debug
+from numpy import array
 
 import praw
-from praw.models import SubredditHelper
+from praw.models import SubredditHelper, Submission
 from base.timer import begin
 from core.data_importer import DataImporter
 
@@ -34,7 +35,7 @@ class DataImporter(DataImporter):
         time_filter = args[2]
         submission_limit = args[3]
         subreddit:SubredditHelper = self.reddit.subreddit(subreddit_name)
-        submissions = []
+        submissions:list[Submission] = []
         with begin("Fetching submissions") as op:
             submissions = subreddit.top(time_filter, limit=submission_limit) if sort == 'top' else subreddit.hot(limit=submission_limit) if sort == 'hot' else subreddit.new(time_filter, limit=submission_limit)
             op.complete()
