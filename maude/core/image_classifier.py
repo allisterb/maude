@@ -3,9 +3,8 @@ import abc
 from logging import info, error, warn, debug
 from PIL import Image
 
-
 class ImageClassifier(abc.ABC):
-    """An image classifier using a neural network or other computer vision classification model."""
+    """An image classifier using a neural network or other computer vision classification model"""
 
     @abc.abstractmethod
     def get_label_for_index(self, i):

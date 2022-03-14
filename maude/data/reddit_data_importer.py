@@ -15,12 +15,14 @@ class DataImporter(DataImporter):
         self.args = args
         info(f'Client id is {self.client_id}. Client user is {self.client_user}.')
 
-    def print_importer_info(self):
+    def get_importer_info(self):
         """Print out information on model"""
         pass
     
-    def import_data():
+    def import_data(self, *args):
         """Import data using the parameters specified in the DataImport constructor"""
-        pass
+        print(args)
+
+
 
     

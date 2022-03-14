@@ -7,7 +7,7 @@ import maude_global
 def set_log_level(ctx, param, value):
     import logging
     from rich.logging import RichHandler
-    from cli.maude_logging import MaudeHighlighter
+    from cli.logging import MaudeHighlighter
     if (value):
         maude_global.DEBUG = True
         logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path= True)])

@@ -1,6 +1,4 @@
-import os, sys
 import abc
-from logging import info, error, warn, debug
 
 class DataImporter(abc.ABC):
     """Import topic, comment and image data for training moderation models."""
@@ -9,9 +7,9 @@ class DataImporter(abc.ABC):
         self.args = args
 
     @abc.abstractmethod
-    def print_importer_info(self):
-        """Print out information on model"""
+    def get_importer_info(self):
+        """Get information on importer"""
     
     @abc.abstractmethod
-    def import_data():
-        """Import data using the parameters specified in the DataImporter constructor"""
+    def import_data(*args):
+        """Import data using the parameters specified"""
