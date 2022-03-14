@@ -9,6 +9,7 @@ from pyfiglet import Figlet
 from rich import print
 
 from maude_global import DEBUG, MAUDE_DIR, kb_capture_thread
+from base.runtime import exception_handler
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -16,25 +17,8 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 # Needs corresponding entry in PYTHONPATH or .env file
 sys.path.append(os.path.join(MAUDE_DIR, 'ext'))
 
-def unhandled_exception_handler(exctype, value, tb):
-    from rich.console import Console
-    from rich.traceback import Traceback
-    console = Console(file=sys.stderr)
-    console.print(
-            Traceback.from_exception(
-                exctype,
-                value,
-                tb,
-                width=100,
-                extra_lines=3,
-                theme=None,
-                word_wrap=False,
-                show_locals=True if DEBUG else False,
-                indent_guides=True,
-                suppress=(),
-                max_frames=100,
-            )
-        )
+def unhandled_exception_handler(ex_type, ex, tb):
+    exception_handler(ex_type, ex, tb)
     error('An unhandled runtime exception occurred. Maude will now exit.')
          
 sys.excepthook = unhandled_exception_handler

@@ -1,15 +1,8 @@
 # Based on https://realpython.com/python-timer/
 import time
+from logging import info, error
 
-from logging import info,error
-
-class TimerError(Exception):
-    """A custom exception used to report errors in use of Timer class"""
-
-# Based on https://realpython.com/python-timer/
-import time
-
-from logging import info,error
+from .runtime import exception_handler
 
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""
@@ -66,8 +59,10 @@ class Op:
         self._start_time = time.perf_counter()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, ex_type, ex, tb):
         if not self.completed:
+            if ex is not None:
+                exception_handler(ex_type, ex, tb)
             self.abandon()
         return True
 
