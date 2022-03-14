@@ -4,7 +4,6 @@ import praw
 from praw.models import SubredditHelper, Submission, Comment
 
 import maude_global
-
 from base.runtime import serialize_to_json
 from base.timer import begin
 from core.data_importer import DataImporter

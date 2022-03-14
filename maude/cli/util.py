@@ -2,6 +2,9 @@ import os,sys
 from logging import info, error, warn, debug
 from typing import Any
 
+def exit_success():
+    sys.exit(0)
+    
 def exit_if_dir_not_exists(path:str) -> str:
     if not os.path.exists(path):
         error(f'The directory {path} does not exist.')
