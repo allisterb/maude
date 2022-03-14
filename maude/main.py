@@ -19,7 +19,7 @@ sys.path.append(os.path.join(MAUDE_DIR, 'ext'))
 
 def unhandled_exception_handler(ex_type, ex, tb):
     exception_handler(ex_type, ex, tb)
-    error('An unhandled runtime exception occurred. Maude will now exit.')
+    error('An runtime exception occurred. maude will now exit.')
          
 sys.excepthook = unhandled_exception_handler
 

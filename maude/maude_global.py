@@ -1,4 +1,5 @@
 import os
+from logging import info
 
 DEBUG = False
 
@@ -10,5 +11,6 @@ def kb_capture_thread():
     """Capture a keyboard input."""
     global KBINPUT
     input()
+    info("Enter key pressed...")
     #_ = getch.getch()
     KBINPUT = True

@@ -1,13 +1,16 @@
 from logging import info, error, warn, debug
-from numpy import array
 
 import praw
-from praw.models import SubredditHelper, Submission
+from praw.models import SubredditHelper, Submission, Comment
+
+import maude_global
+
+from base.runtime import serialize_to_json
 from base.timer import begin
 from core.data_importer import DataImporter
 
 class DataImporter(DataImporter):
-    """Import topic, comment and image data from Reddit."""
+    """Import submission, comment and image data from Reddit."""
 
     def __init__(self, client_id, client_secret, client_user, client_pass, args=[]):
         self.client_id=client_id
@@ -28,24 +31,30 @@ class DataImporter(DataImporter):
         pass
     
     def import_data(self, *args):
-        """Import data using the parameters specified in the DataImport constructor"""
+        """Import Reddit data using the parameters specified"""
+        
         debug(f'Import args are: {args}')
-        subreddit_name = args[0]
-        sort = args[1]
-        time_filter = args[2]
-        submission_limit = args[3]
+        subreddit_name:str = args[0]
+        sort:str = args[1]
+        submission_limit:int = args[2]
+        comment_limit:int = args[3]
+        time_filter:str = args[4]
         subreddit:SubredditHelper = self.reddit.subreddit(subreddit_name)
         submissions:list[Submission] = []
-        with begin("Fetching submissions") as op:
-            submissions = subreddit.top(time_filter, limit=submission_limit) if sort == 'top' else subreddit.hot(limit=submission_limit) if sort == 'hot' else subreddit.new(time_filter, limit=submission_limit)
-            op.complete()
-        for submission in submissions:
-            print(submission.title)
-
+        comments:dict[str, list[Comment]] = {}
         
+        with begin(f'Fetching {submission_limit} {sort} submissions for subreddit {subreddit_name}') as op:
+            submissions = subreddit.top(time_filter, limit=submission_limit) if sort == 'top' else subreddit.hot(limit=submission_limit) if sort == 'hot' else subreddit.new(limit=submission_limit)
+            op.complete()
 
-         
+        with begin('Fetching comment data for submissions') as op:
+            for submission in submissions:
+                if maude_global.KBINPUT:
+                    op.abandon()
+                    return
+                submission.comments.replace_more(limit=None)
+                comments[submission.title] = submission.comments.list()
+            op.complete()
 
-
-
-    
+        print(serialize_to_json(comments))
+        
