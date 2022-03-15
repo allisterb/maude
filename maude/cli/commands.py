@@ -16,9 +16,15 @@ def text(): pass
 def data_import(): pass
 
 @parse.group()
-def ipfs(): pass
+def ipfs():
+    pass
+
+@parse.group()
+def server():
+    pass
 
 import cli.image_commands
 import cli.text_commands
 import cli.data_import_commands
 import cli.ipfs_commands
+import cli.server_commands

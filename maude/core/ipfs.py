@@ -1,7 +1,7 @@
-from http import client
+from distutils import core
 from pyipfs import ipfshttpclient
 
-client = ipfshttpclient.connect(session=True)
+ipfsclient:ipfshttpclient.Client = None
 
 def get_client_id():
-    return client.id()
+    return ipfsclient.id()
