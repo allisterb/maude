@@ -1,5 +1,4 @@
 import sys
-
 import json
 
 from maude_global import DEBUG
