@@ -33,7 +33,7 @@ def run(ipfs_node, forum:str):
         if not message_queue_thread.is_alive():
             message_queue_thread = threading.Thread(target=ipfs.get_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
             message_queue_thread.start()
-        while message_queue.not_empty:
+        while not message_queue.empty():
             message = message_queue.get()
             print(message)
             message_count += 1
