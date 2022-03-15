@@ -1,10 +1,9 @@
-from logging import info, error
+from logging import info, error, debug
 from multibase import encode, decode
 def process_forum_message(msg):
     peer:str = msg['from']
     seqno = decode(msg['seqno'])
-    _topicIDs: list[str] = msg['topicIDs']
-    topicIDs = list(map(lambda t: decode(t).decode('UTF-8'), _topicIDs))
+    topicIDs = list(map(lambda t: decode(t).decode('UTF-8'), msg['topicIDs']))
     try:
         data:str = decode(msg['data']).decode('UTF-8')
     except UnicodeDecodeError as e:
