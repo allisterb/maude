@@ -34,22 +34,20 @@ def run(ipfs_node, forum:str):
         while not message_queue.empty():
             message = message_queue.get()
             debug(f'Message received for topic test: {message}')
-            message_count += 1
             if message == 'stop':
                 stop_monitoring_queue = True
             elif message == 'timeout':
                 ipfs_subscribe_timeout = True
             else:
+                message_count += 1
                 server.process_forum_message(message)
         if not message_queue_thread.is_alive():
-            if not(maude_global.KBINPUT or ipfs_subscribe_timeout):
+            if not(ipfs_subscribe_timeout):
                 exit_with_error(f'An error occurred monitoring the message queue for forum {forum}.')
-            elif ipfs_subscribe_timeout:
+            else:
                 debug('Restarting IPFS subscription after timeout.')
                 message_queue_thread = threading.Thread(target=ipfs.get_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
                 message_queue_thread.start()
-            else:
-                break
         running_time = time() - start_time
         if int(running_time) % 5 == 0:
             info(f'maud3 server running for {timedelta(seconds=int(running_time))}. Processed {message_count} message(s) for forum {forum}. Press [ENTER] to shutdown.')
