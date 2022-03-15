@@ -6,3 +6,4 @@ perspective
 spacy
 praw
 multiaddr
+py-multibase

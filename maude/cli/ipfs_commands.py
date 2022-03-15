@@ -1,10 +1,18 @@
 import click
 from rich import print
+from pyipfs import ipfshttpclient
 
-from cli.commands import ipfs
+from base.timer import begin
+from cli.commands import ipfs as ipfscmd
 from cli.util import *
-from core.ipfs import get_client_id
+from core import ipfs
 
-@ipfs.command('info')
+def init_ipfs_client(api_url):
+    with begin("Connecting to IPFS node") as op:
+        ipfs.ipfsclient = ipfshttpclient.connect(session=True)
+        op.complete()
+
+@ipfscmd.command('info')
 def ipfs_info():
-    print(get_client_id())
+    init_ipfs_client()
+    print(ipfs.get_client_id())
