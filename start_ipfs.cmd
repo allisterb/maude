@@ -19,9 +19,6 @@ if not %ERRORLEVEL% == 0 goto SetLogFileError
 start %IPFS_CMD% daemon --enable-pubsub-experiment
 if not %ERRORLEVEL% == 0 goto StartError
 
-%IPFS_CMD% log level provider.simple info
-if not %ERRORLEVEL% == 0 goto IpfsLogError
-
 echo Started IPFS configured for maud3 monitoring. 
 goto End
 
@@ -33,11 +30,6 @@ goto End
 :StartError
 echo Could not start the IPFS daemon using %IPFS_CMD% daemon --enable-pubsub-experiment.
 set ERROR_CODE=2
-goto End
-
-:IpfsLogError
-echo Could not configure logging for IPFS provider.simple system.
-set ERROR_CODE=3
 goto End
 
 :End

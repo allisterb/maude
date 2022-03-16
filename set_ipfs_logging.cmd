@@ -6,5 +6,6 @@ if not "%1"=="" (
 )
 set GOLOG_LOG_FMT=json
 set GOLOG_OUTPUT=stdout+file
+set GOLOG_LOG_LEVEL=error,provider.simple=info
 
-echo IPFS will log to file %GOLOG_FILE% in JSON format.
+echo IPFS will log to file %GOLOG_FILE% in JSON format using log level INFO for the provider.simple system.
