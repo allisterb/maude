@@ -1,6 +1,5 @@
+from logging import debug,error,warn
 import queue
-import subprocess
-from logging import debug,error
 
 from pyipfs import ipfshttpclient
 
@@ -10,6 +9,20 @@ ipfsclient:ipfshttpclient.Client = None
 
 def get_client_id():
     return ipfsclient.id()
+
+def get_config(key=None):
+    config = ipfsclient.config.get()
+    if key == None:
+        return config
+    else:
+        try:
+            return config[key]
+        except KeyError as _:
+            warn(f'The config key {key} does not exist.')
+            return None
+        except Exception as e:
+            error(f'An error occurred getting the config key {key}: {e}.')
+            return None
 
 def get_pubsub_messages(client:ipfshttpclient.Client, topic:str, q:queue.Queue):
     debug(f'Subscribing to IPFS topic {topic}...')
@@ -42,15 +55,3 @@ def get_log(client:ipfshttpclient.Client, q:queue.Queue):
         else:
             error(ex_msg)
             q.put('stop')
-
-# def monitor_node_log(client:ipfshttpclient.Client):
-#    debug(f'Running ipfs tail log command...')
-#    p = subprocess.Popen('ipfs tail lo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-#    stdout = []
-#    while True:
-#        line = p.stdout.readline()
-#        stdout.append(line)
-#       print(line),
-#        if p.poll() != None:
-#            break
-#    return ''.join(stdout)
