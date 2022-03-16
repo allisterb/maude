@@ -24,7 +24,3 @@ def ipfs_config(key):
     c = ipfs.get_config(key)
     if c != None:
         print(c)
-    elif c == None and key == None:
-        error(f'Could not get the IPFS node config.')
-    else:
-        error(f'Could not get the IPFS node config key {key}.')

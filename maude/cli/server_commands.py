@@ -73,14 +73,14 @@ def monitor(ipfs_node):
     while ((not maude_global.KBINPUT) and (not stop_monitoring_queue)):
         while not message_queue.empty():
             message = message_queue.get()
-            if message['system'] == 'addrutil':
-                continue
-            debug(f'Log message received: {message}')
             if message == 'stop':
                 stop_monitoring_queue = True
             elif message == 'timeout':
                 ipfs_subscribe_timeout = True
+            elif message['system'] == 'addrutil':
+                continue
             else:
+                debug(f'Log message received: {message}')
                 message_count += 1
         if not message_queue_thread.is_alive():
             if not(ipfs_subscribe_timeout):

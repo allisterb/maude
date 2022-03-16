@@ -1,4 +1,7 @@
-from logging import debug,error,warn
+import os
+import time
+
+from logging import debug,error
 import queue
 
 from pyipfs import ipfshttpclient
@@ -18,10 +21,10 @@ def get_config(key=None):
         try:
             return config[key]
         except KeyError as _:
-            warn(f'The config key {key} does not exist.')
+            error(f'The config key \'{key}\' does not exist.')
             return None
         except Exception as e:
-            error(f'An error occurred getting the config key {key}: {e}.')
+            error(f'An error occurred getting the config key \'{key}\': {e}.')
             return None
 
 def get_pubsub_messages(client:ipfshttpclient.Client, topic:str, q:queue.Queue):
@@ -55,3 +58,12 @@ def get_log(client:ipfshttpclient.Client, q:queue.Queue):
         else:
             error(ex_msg)
             q.put('stop')
+
+def tail_log_file(file):
+    file.seek(0, os.SEEK_END)
+    while True:
+        line = file.readline()
+        if not line:
+            time.sleep(0.1)
+            continue
+        yield line
