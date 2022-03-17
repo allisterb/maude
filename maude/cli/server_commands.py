@@ -48,13 +48,13 @@ def subscribe(ipfs_node, forum:str):
                 message_queue_thread = threading.Thread(target=ipfs.get_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
                 message_queue_thread.start()
         running_time = time() - start_time
-        if int(running_time) % 5 == 0:
+        if int(running_time) % 60 == 0:
             log_message = f'maude server running in subscribe mode for {timedelta(seconds=int(running_time))}. Processed {message_count} total messages. Press [ENTER] to shutdown.'
             if not log_message == last_log_message: 
                 info(f'maude server running in subscribe mode for {timedelta(seconds=int(running_time))}. Processed {message_count} total messages. Press [ENTER] to shutdown.')
                 last_log_message = log_message
     
-    info("maud3 server shutdown.")
+    info("maude server shutdown.")
 
 @servercmd.command()  
 @click.option('--ipfs-node')

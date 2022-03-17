@@ -3,7 +3,7 @@ import json
 from logging import info, error, debug
 from multibase import encode, decode
 
-from filetype import guess, get_bytes
+from filetype import guess, guess_extension, get_bytes, is_image, is_video
 
 from core.ipfs import get_file
 
@@ -30,9 +30,19 @@ def process_log_entry(msg):
     else:
         return False
     info(f'File to be analyzed is {file_hash}.')
-    f:bytes = get_file(file_hash)
-    debug(f'File is {f}')
-    file_type = guess(get_bytes(f))
-    info(f'File has type {file_type}.')
+    file_bytes:bytes = get_file(file_hash)
+    file_text:str = ''
+    file_header = get_bytes(file_bytes)
+    file_type_ext = guess_extension(file_header)
+    if (file_type_ext == None):
+        try:
+            file_text = file_bytes.decode('utf-8')
+            info('The file can be decoded as UTF-8...assuming file type is txt.')
+            file_type_ext = 'txt'
+        except UnicodeDecodeError as _:
+            error(f'Could not determine the file type of {file_hash}. Skipping.')
+            return False
+    info(f'{file_hash} has type {file_type_ext} and length {len(file_bytes)} bytes.')
+
 
 
