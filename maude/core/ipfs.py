@@ -1,11 +1,11 @@
 import os
 import time
-
-from logging import debug,error
 import queue
+from logging import debug,error
 
 from pyipfs import ipfshttpclient
 
+import maude_global
 from base.timer import begin
 
 ipfsclient:ipfshttpclient.Client = None
@@ -27,10 +27,10 @@ def get_config(key=None):
             error(f'An error occurred getting the config key \'{key}\': {e}.')
             return None
 
-def get_pubsub_messages(client:ipfshttpclient.Client, topic:str, q:queue.Queue):
+def get_pubsub_messages(topic:str, q:queue.Queue):
     debug(f'Subscribing to IPFS topic {topic}...')
     try:
-        with client.pubsub.subscribe(topic) as sub:
+        with ipfsclient.pubsub.subscribe(topic) as sub:
             debug(f'Subscribed.')
             for message in sub:
                 q.put(message)
@@ -43,10 +43,20 @@ def get_pubsub_messages(client:ipfshttpclient.Client, topic:str, q:queue.Queue):
             error(ex_msg)
             q.put('stop')
 
-def get_log(client:ipfshttpclient.Client, q:queue.Queue):
+def tail_log_file(file, q:queue.Queue):
+    file.seek(0, os.SEEK_END)
+    while not maude_global.KBINPUT:
+        line = file.readline()
+        if not line:
+            time.sleep(1)
+            continue
+        #yield line
+        q.put(line)
+
+def read_event_log(q:queue.Queue):
     debug(f'Subscribing to IPFS log...')
     try:
-        with client.log.log_tail() as sub:
+        with ipfsclient.log.log_tail() as sub:
             debug(f'Subscribed.')
             for message in sub:
                 q.put(message)
@@ -58,12 +68,3 @@ def get_log(client:ipfshttpclient.Client, q:queue.Queue):
         else:
             error(ex_msg)
             q.put('stop')
-
-def tail_log_file(file):
-    file.seek(0, os.SEEK_END)
-    while True:
-        line = file.readline()
-        if not line:
-            time.sleep(0.1)
-            continue
-        yield line

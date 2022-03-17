@@ -1,4 +1,5 @@
 import json
+import os
 import threading
 
 from datetime import timedelta
@@ -9,6 +10,7 @@ from queue import Queue
 import click
 from multibase import encode
 from rich import print
+
 import maude_global
 from base.timer import begin
 from core import ipfs, server
@@ -16,7 +18,7 @@ from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
 
-@servercmd.command('run')  
+@servercmd.command('subscribe')  
 @click.option('--ipfs-node')
 @click.argument('forum')
 def run(ipfs_node, forum:str):
@@ -60,12 +62,13 @@ def run(ipfs_node, forum:str):
 
 @servercmd.command('monitor')  
 @click.option('--ipfs-node')
-def monitor(ipfs_node):
+@click.argument('log-file', type=click.Path(exists=True))
+def monitor(ipfs_node, log_file):
     init_ipfs_client(ipfs_node)
     message_queue = Queue()
     message_count = 0
     start_time = time()
-    message_queue_thread = threading.Thread(target=ipfs.get_log, args=(ipfs.ipfsclient, message_queue), name='message_queue_thread', daemon=True)
+    message_queue_thread = threading.Thread(target=ipfs.tail_log_file, args=(open(log_file,"r"), message_queue), name='message_queue_thread', daemon=True)
     message_queue_thread.start()
     ipfs_subscribe_timeout = False
     stop_monitoring_queue = False
@@ -77,8 +80,6 @@ def monitor(ipfs_node):
                 stop_monitoring_queue = True
             elif message == 'timeout':
                 ipfs_subscribe_timeout = True
-            elif message['system'] == 'addrutil':
-                continue
             else:
                 debug(f'Log message received: {message}')
                 message_count += 1
