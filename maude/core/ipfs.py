@@ -1,7 +1,7 @@
 import os
 import time
 import queue
-from logging import debug,error
+from logging import info, debug, error
 
 from pyipfs import ipfshttpclient
 
@@ -68,3 +68,12 @@ def tail_event_log(q:queue.Queue):
         else:
             error(ex_msg)
             q.put('stop')
+
+def get_file(file_hash:str):
+    f:bytes = []
+    with begin(f'Retrieving file {file_hash}') as op:
+        f = ipfsclient.cat(file_hash)
+        op.complete()
+    return f
+
+    
