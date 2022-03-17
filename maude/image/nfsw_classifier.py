@@ -8,7 +8,7 @@ from nsfw_model.nsfw_detector import predict
 class Classifier(ImageClassifier):
     """NSFW Detection Machine Learning Model"""
 
-    def __init__(self, image_source, args):
+    def __init__(self, image_source, args={}):
         super().__init__("NSFW Detection Machine Learning Model", os.path.join(MAUDE_DIR, 'models', 'mobilenet_v2_140_224'), image_source, args)
         self.model = predict.load_model(self.model_dir)
         info('Model: %s', self.model_dir)

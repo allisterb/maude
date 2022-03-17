@@ -24,7 +24,7 @@ def subscribe(ipfs_node, forum:str):
     message_count = 0
     debug(f'Forum topic is {f}.')
     start_time = time()
-    message_queue_thread = threading.Thread(target=ipfs.get_pubsub_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
+    message_queue_thread = threading.Thread(target=ipfs.get_pubsub_messages, args=(f, message_queue), name='message_queue_thread', daemon=True)
     message_queue_thread.start()
     ipfs_subscribe_timeout = False
     stop_monitoring_queue = False
@@ -75,9 +75,8 @@ def monitor(ipfs_node, log_file):
             if message == 'stop':
                 stop_monitoring_queue = True
             else:
-                debug(f'Log entry read: {message}')
-                server.process_log_entry(message)
-                message_count += 1
+                if server.process_log_entry(message):
+                    message_count += 1
         if not message_queue_thread.is_alive():
              exit_with_error(f'An error occurred reading the IPFS log file {log_file}.')
         running_time = time() - start_time

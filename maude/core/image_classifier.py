@@ -1,3 +1,4 @@
+from email.mime import image
 import os, sys
 import abc
 from logging import info, error, warn, debug
@@ -24,5 +25,6 @@ class ImageClassifier(abc.ABC):
         self.image_source = image_source
         self.image = Image.open(image_source)
         self._height, self._width, self._info = self.image.height, self.image.width, self.image.info
-        info('Image: %s %sw x %sh %s', self.image_source, self._width, self._height, self.image.format)
+        info('Image: %sw x %sh %s', self._width, self._height, self.image.format)
+        self.image.close()
         self.args = args
