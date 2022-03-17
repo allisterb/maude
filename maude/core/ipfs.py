@@ -53,16 +53,16 @@ def tail_log_file(file, q:queue.Queue):
         #yield line
         q.put(line)
 
-def read_event_log(q:queue.Queue):
-    debug(f'Subscribing to IPFS log...')
+def tail_event_log(q:queue.Queue):
+    debug("Connecting to event log...")
     try:
         with ipfsclient.log.log_tail() as sub:
-            debug(f'Subscribed.')
+            debug("Connected.")
             for message in sub:
                 q.put(message)
     except Exception as e:
-        ex_msg = f'Exception subscribing to log: {e}'
-        debug(f'Exception subscribing to log: {e}')
+        ex_msg = f'Exception reading event log: {e}'
+        debug(f'Exception reading event log: {e}')
         if str(ex_msg).endswith('Read timed out.'):
             q.put('timeout')
         else:
