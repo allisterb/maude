@@ -42,7 +42,8 @@ def get_pubsub_messages(topic:str, q:queue.Queue):
         else:
             error(ex_msg)
             q.put('stop')
-
+def public_message(topic:str, msg:str):
+    ipfsclient.pubsub.publish(topic, msg)
 def tail_log_file(file, q:queue.Queue):
     file.seek(0, os.SEEK_END)
     while not maude_global.KBINPUT:
