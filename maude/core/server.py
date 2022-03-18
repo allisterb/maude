@@ -66,12 +66,12 @@ def process_log_entry(msg, pubtopic) -> bool:
             fh.write(file_bytes)
         debug(f'Created temporary file {file_name}.')
         if file_is_image:
-            publish(str(encode('base64url', pubtopic), 'utf-8'), 'tesy')
             classifier = Classifier(file_name)
             data = classifier.classify()
             info(f'Classification for image {file_hash}: {data}')
             classifier.image.close()
             os.remove(file_name)
+            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
             
 
 
