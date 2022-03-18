@@ -64,10 +64,10 @@ def process_log_entry(msg, pubtopic) -> bool:
         file_name = os.path.join(td, file_hash)
         with open(file_name, 'wb') as fh:
             fh.write(file_bytes)
-        debug(f'Created temporary file {file_name}.')
+        debug(f'Created temporary file: {file_name}.')
         if file_is_image:
             classifier = Classifier(file_name)
-            data = classifier.classify()
+            data =list(classifier.classify().values())[0] 
             info(f'Classification for image {file_hash}: {data}')
             classifier.image.close()
             os.remove(file_name)
