@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "maude/main.py",
-            "args": ["server", "monitor"],
+            "args": ["server", "subscribe"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

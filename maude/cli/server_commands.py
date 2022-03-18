@@ -1,3 +1,4 @@
+from sqlite3 import apilevel
 import threading
 from datetime import timedelta
 from time import time
@@ -20,18 +21,18 @@ from cli.util import exit_with_error
 @click.option('--id', default='maude')
 @click.argument('subtopic', default='maude_to')
 @click.argument('pubtopic', default='maude')
-@click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default='foo')
+@click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY')
 def subscribe(ipfs_node, id, subtopic, pubtopic, perspective_api_key):
     init_ipfs_client(ipfs_node)
     info(f'Maude instance id is {id}.')
     info(f'Subscribed to IPFS topic {subtopic}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
+    text.perspective_classifier.api_key = perspective_api_key
+    info(f'Google Perspective API key is {perspective_api_key[0:2]}...')
     message_queue = Queue()
-    #text.perspective_classifier.api_key = perspective_api_key
     f = str(encode('base64url', subtopic), 'utf-8')
     message_queue = Queue()
     message_count = 0
-    debug(f'Forum topic is {f}.')
     start_time = time()
     message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(f, message_queue), name='message_queue_thread', daemon=True)
     message_queue_thread.start()
