@@ -4,12 +4,11 @@ import json
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
 from xmlrpc.client import Boolean
-from multibase import decode
+from multibase import decode, encode
 from filetype import guess_extension, get_bytes, is_image, is_video
 
-from core.ipfs import get_file, get_object, is_file_or_dir
+from core.ipfs import get_file, get_object, is_file_or_dir, publish
 from image.nfsw_classifier import Classifier
-from pyipfs import ipfshttpclient
 
 def process_forum_message(msg):
     peer:str = msg['from']
@@ -28,15 +27,13 @@ def process_forum_message(msg):
     debug(data)
     return True
 
-def process_log_entry(msg) -> bool:
+def process_log_entry(msg, pubtopic) -> bool:
     log_entry = json.loads(msg)
     file_hash = ''
     if log_entry['logger'] =='bitswap' and log_entry['msg'] == 'Bitswap.ProvideWorker.Start':
         debug(f'Log entry read: {msg}')
         cid = log_entry['cid']
         if is_file_or_dir(cid):
-
-        #object.get('QmTkzDwWqPbnAh5YiV5VwcTLnGdwSNsNTn2aDxdXBFca7D')
             info(f'File or directory {cid} requested by local node or by network.')
             return True
         else:
@@ -69,10 +66,13 @@ def process_log_entry(msg) -> bool:
             fh.write(file_bytes)
         debug(f'Created temporary file {file_name}.')
         if file_is_image:
+            publish(str(encode('base64url', pubtopic), 'utf-8'), 'tesy')
             classifier = Classifier(file_name)
-            info(classifier.classify())
+            data = classifier.classify()
+            info(f'Classification for image {file_hash}: {data}')
             classifier.image.close()
             os.remove(file_name)
+            
 
 
 

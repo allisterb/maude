@@ -31,7 +31,7 @@ def get_config(key=None):
             error(f'An error occurred getting the config key \'{key}\': {e}.')
             return None
 
-def get_pubsub_messages(topic:str, q:queue.Queue):
+def subscribe(topic:str, q:queue.Queue):
     debug(f'Subscribing to IPFS topic {topic}...')
     try:
         with ipfsclient.pubsub.subscribe(topic) as sub:
@@ -47,7 +47,7 @@ def get_pubsub_messages(topic:str, q:queue.Queue):
             error(ex_msg)
             q.put('stop')
 
-def public_message(topic:str, msg:str):
+def publish(topic:str, msg:str):
     with begin(f'Publishing message with length {len(msg)} to IPFS topic {topic}') as op:
         ipfsclient.pubsub.publish(topic, msg)
         op.complete()

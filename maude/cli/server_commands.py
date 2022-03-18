@@ -1,3 +1,4 @@
+from email.policy import default
 import threading
 
 from datetime import timedelta
@@ -24,7 +25,7 @@ def subscribe(ipfs_node, forum:str):
     message_count = 0
     debug(f'Forum topic is {f}.')
     start_time = time()
-    message_queue_thread = threading.Thread(target=ipfs.get_pubsub_messages, args=(f, message_queue), name='message_queue_thread', daemon=True)
+    message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(f, message_queue), name='message_queue_thread', daemon=True)
     message_queue_thread.start()
     ipfs_subscribe_timeout = False
     stop_monitoring_queue = False
@@ -58,10 +59,14 @@ def subscribe(ipfs_node, forum:str):
 
 @servercmd.command()  
 @click.option('--ipfs-node')
+@click.option('--id', default='maude')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
-def monitor(ipfs_node, log_file):
+@click.argument('pubtopic', type=str, default='maude')
+def monitor(ipfs_node, id, log_file, pubtopic):
     init_ipfs_client(ipfs_node)
-    debug(f'Log file is {log_file}.')
+    info(f'Maude instance id is {id}.')
+    info(f'IPFS log file is {log_file}.')
+    info(f'Publishing to topic {pubtopic}.')
     message_queue = Queue()
     message_count = 0
     start_time = time()
@@ -75,7 +80,7 @@ def monitor(ipfs_node, log_file):
             if message == 'stop':
                 stop_monitoring_queue = True
             else:
-                if server.process_log_entry(message):
+                if server.process_log_entry(message, pubtopic):
                     message_count += 1
         if not message_queue_thread.is_alive():
              exit_with_error(f'An error occurred reading the IPFS log file {log_file}.')
