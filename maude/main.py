@@ -2,7 +2,7 @@
 import os, sys
 import threading
 import warnings
-from logging import info, error, debug
+from logging import error
 
 from pyfiglet import Figlet
 from rich import print

@@ -3,14 +3,13 @@ import json
 
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
-from xmlrpc.client import Boolean
 from multibase import decode, encode
 from filetype import guess_extension, get_bytes, is_image, is_video
 
 from core.ipfs import get_file, get_object, is_file_or_dir, publish
 from image.nfsw_classifier import Classifier
-
-def process_forum_message(msg):
+from text.perspective_classifier import TextClassifier
+def process_sub_message(msg, topic):
     peer:str = msg['from']
     seqno = decode(msg['seqno'])
     topicIDs = list(map(lambda t: decode(t).decode('UTF-8'), msg['topicIDs']))
@@ -23,7 +22,8 @@ def process_forum_message(msg):
     except Exception as e:
         error(f'Error decoding message data from peer {peer} with seqno {seqno}: {e}')
         return False
-    debug(topicIDs)
+    classifier = TextClassifier()
+    data = classifier.classify(data)
     debug(data)
     return True
 

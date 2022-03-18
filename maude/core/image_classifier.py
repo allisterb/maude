@@ -1,4 +1,3 @@
-from email.mime import image
 import os, sys
 import abc
 from logging import info, error, warn, debug

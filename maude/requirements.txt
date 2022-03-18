@@ -8,3 +8,5 @@ praw
 multiaddr
 py-multibase
 filetype
+py-cid
+google-api-python-client

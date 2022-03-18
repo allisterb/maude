@@ -1,15 +1,15 @@
-from email.policy import default
 import threading
-
 from datetime import timedelta
-from time import time, sleep
-from logging import info, error, debug
+from time import time
+import logging
+from logging import info, error, debug, warning
 from queue import Queue
 
 import click
 from multibase import encode
 
 import maude_global
+import text.perspective_classifier
 from core import ipfs, server
 from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
@@ -17,10 +17,18 @@ from cli.util import exit_with_error
 
 @servercmd.command()  
 @click.option('--ipfs-node')
-@click.argument('forum')
-def subscribe(ipfs_node, forum:str):
+@click.option('--id', default='maude')
+@click.argument('subtopic', default='maude_to')
+@click.argument('pubtopic', default='maude')
+@click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default='foo')
+def subscribe(ipfs_node, id, subtopic, pubtopic, perspective_api_key):
     init_ipfs_client(ipfs_node)
-    f = str(encode('base64url', forum), 'utf-8')
+    info(f'Maude instance id is {id}.')
+    info(f'Subscribed to IPFS topic {subtopic}.')
+    info(f'Publishing to IPFS topic {pubtopic}.')
+    message_queue = Queue()
+    #text.perspective_classifier.api_key = perspective_api_key
+    f = str(encode('base64url', subtopic), 'utf-8')
     message_queue = Queue()
     message_count = 0
     debug(f'Forum topic is {f}.')
@@ -33,17 +41,17 @@ def subscribe(ipfs_node, forum:str):
     while ((not maude_global.KBINPUT) and (not stop_monitoring_queue)):
         while not message_queue.empty():
             message = message_queue.get()
-            debug(f'Message received for topic {forum}: {message}')
+            debug(f'Message received for topic {subtopic}: {message}')
             if message == 'stop':
                 stop_monitoring_queue = True
             elif message == 'timeout':
                 ipfs_subscribe_timeout = True
             else:
                 message_count += 1
-                server.process_forum_message(message)
+                server.process_sub_message(message, pubtopic)
         if not message_queue_thread.is_alive():
             if not(ipfs_subscribe_timeout):
-                exit_with_error(f'An error occurred monitoring the message queue for topic {forum}.')
+                exit_with_error(f'An error occurred monitoring the message queue for topic {subtopic}.')
             else:
                 debug('Restarting IPFS subscription after timeout.')
                 message_queue_thread = threading.Thread(target=ipfs.get_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
@@ -63,10 +71,10 @@ def subscribe(ipfs_node, forum:str):
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
 @click.argument('pubtopic', type=str, default='maude')
 def monitor(ipfs_node, id, log_file, pubtopic):
+    logging.basicConfig(level=logging.DEBUG)
     init_ipfs_client(ipfs_node)
-    info(f'Maude instance id is {id}.')
     info(f'IPFS log file is {log_file}.')
-    info(f'Publishing to topic {pubtopic}.')
+    info(f'Publishing to IPFS topic {pubtopic}.')
     message_queue = Queue()
     message_count = 0
     start_time = time()
