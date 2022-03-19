@@ -2,7 +2,7 @@
 import os, sys
 import threading
 import warnings
-from logging import error
+from logging import info,error
 
 from pyfiglet import Figlet
 from rich import print
@@ -10,7 +10,7 @@ from rich import print
 import maude_global
 from base.runtime import exception_handler
 
-# Needs corresponding entry in PYTHONPATH or .env file
+# Needs corresponding entry in PYTHONPATH or .env file for development.
 sys.path.append(os.path.join(maude_global.MAUDE_DIR, 'ext'))
 
 from pyipfs.ipfshttpclient.exceptions import VersionMismatch
@@ -32,7 +32,12 @@ def print_logo():
     
 if __name__ == '__main__': 
     maude_global.INTERACTIVE_CLI = True
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0' if '--debug' in sys.argv[1:] else '3'
+    if '--debug' in sys.argv[1:]:
+        maude_global.DEBUG = True
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
+        info('Debug enabled.')
+    else:
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] ='3'
     print_logo()
     threading.Thread(target=maude_global.kb_capture_thread, args=(), name='kb_capture_thread', daemon=True).start()
     from cli.commands import parse
