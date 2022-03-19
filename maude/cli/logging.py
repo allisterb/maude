@@ -1,3 +1,4 @@
+import os
 from logging import info
 
 from rich.highlighter import RegexHighlighter
@@ -12,9 +13,11 @@ def set_log_level(ctx, param, value):
     if (value):
         maude_global.DEBUG = True
         logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.DEBUG, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path= True)])
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'  # or any {'0', '1', '2'}  to control TensorFlow 2 logging level
         info("Debug mode enabled.")
     else:
         logging.basicConfig(format='%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO, handlers=[RichHandler(rich_tracebacks=True, highlighter = MaudeHighlighter(), show_path=False)])
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}  to control TensorFlow 2 logging level
 
 def _combine_regex(*regexes: str) -> str:
     """Combine a number of regexes in to a single regex.
