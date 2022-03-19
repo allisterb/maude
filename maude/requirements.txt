@@ -1,5 +1,4 @@
 click
-colors
 rich
 pyfiglet
 perspective
