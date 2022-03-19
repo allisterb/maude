@@ -1,6 +1,6 @@
 [submodule "ext/nsfw_model"]
 	path = ext/nsfw_model
-	url = https://github.com/GantMan/nsfw_model.git
+	url = https://github.com/allisterb/nsfw_model.git
 [submodule "ext/py-ipfs-http-client"]
 	path = ext/pyipfs
 	url = https://github.com/allisterb/py-ipfs-http-client.git
