@@ -55,7 +55,7 @@ def subscribe(ipfs_node, id, subtopic, pubtopic, perspective_api_key):
                 exit_with_error(f'An error occurred monitoring the message queue for topic {subtopic}.')
             else:
                 debug('Restarting IPFS subscription after timeout.')
-                message_queue_thread = threading.Thread(target=ipfs.get_messages, args=(ipfs.ipfsclient, f, message_queue), name='message_queue_thread', daemon=True)
+                message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(f, message_queue), name='message_queue_thread', daemon=True)
                 message_queue_thread.start()
         running_time = time() - start_time
         if int(running_time) % 60 == 0:
