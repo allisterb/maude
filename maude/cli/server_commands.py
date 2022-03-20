@@ -1,4 +1,3 @@
-from sqlite3 import apilevel
 import threading
 from datetime import timedelta
 from time import time
@@ -19,11 +18,11 @@ from cli.util import exit_with_error
 @servercmd.command()  
 @click.option('--ipfs-node')
 @click.option('--id', default='maude')
-@click.argument('subtopic', default='maude_to')
-@click.argument('pubtopic', default='maude')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY')
-def subscribe(ipfs_node, id, subtopic, pubtopic, perspective_api_key):
+def subscribe(ipfs_node, id, perspective_api_key):
     init_ipfs_client(ipfs_node)
+    subtopic = id + '_to' 
+    pubtopic = id 
     info(f'Maude instance id is {id}.')
     info(f'Subscribed to IPFS topic {subtopic}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
@@ -70,9 +69,9 @@ def subscribe(ipfs_node, id, subtopic, pubtopic, perspective_api_key):
 @click.option('--ipfs-node')
 @click.option('--id', default='maude')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
-@click.argument('pubtopic', type=str, default='maude')
-def monitor(ipfs_node, id, log_file, pubtopic):
+def monitor(ipfs_node, id, log_file):
     logging.basicConfig(level=logging.DEBUG)
+    pubtopic = id
     init_ipfs_client(ipfs_node)
     info(f'IPFS log file is {log_file}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
