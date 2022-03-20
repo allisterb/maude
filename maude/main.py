@@ -1,11 +1,6 @@
-"""CLI interface for maude"""
 import os, sys
-import threading
 import warnings
 from logging import info,error
-
-from pyfiglet import Figlet
-from rich import print
 
 import maude_global
 from base.runtime import exception_handler
@@ -25,12 +20,8 @@ def unhandled_exception_handler(ex_type, ex, tb):
          
 sys.excepthook = unhandled_exception_handler
 
-def print_logo():
-    """Print program logo."""
-    fig = Figlet(font='chunky')
-    print('[cyan]' + fig.renderText('maud3') + '[/cyan]', '0.1' + os.linesep)
-    
 if __name__ == '__main__': 
+    """Entry-point for CLI"""
     maude_global.INTERACTIVE_CLI = True
     if '--debug' in sys.argv[1:]:
         maude_global.DEBUG = True
@@ -38,8 +29,18 @@ if __name__ == '__main__':
         info('Debug enabled.')
     else:
         os.environ['TF_CPP_MIN_LOG_LEVEL'] ='3'
-    print_logo()
+    
+    # Print logo
+    from pyfiglet import Figlet
+    from rich import print
+    fig = Figlet(font='chunky')
+    print('[cyan]' + fig.renderText('maud3') + '[/cyan]', '0.1' + os.linesep)
+
+    # Start thread to capture key press
+    import threading
     threading.Thread(target=maude_global.kb_capture_thread, args=(), name='kb_capture_thread', daemon=True).start()
+    
+    # Parse CLI commands
     from cli.commands import parse
     parse()
     
