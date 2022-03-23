@@ -3,28 +3,33 @@ import json
 
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
-from multibase import decode, encode
+from multibase import decode as multi_decode, encode
 from filetype import guess_extension, get_bytes, is_image, is_video
 
-from core.ipfs import get_file, get_object, is_file_or_dir, publish
-from image.nfsw_classifier import Classifier
-from text.perspective_classifier import TextClassifier
+from text.perspective_classifier import TextClassifier as PerspectiveTextClassifier, api_key as perspective_api_key
+from core.ipfs import get_file, is_file_or_dir, publish
+from image.nfsw_classifier import Classifier as NfswClassifier
 
-def process_sub_message(msg, topic):
+perspective_classifier = None
+
+def process_sub_message(msg, pubtopic):
     peer:str = msg['from']
-    seqno = decode(msg['seqno'])
-    topicIDs = list(map(lambda t: decode(t).decode('UTF-8'), msg['topicIDs']))
+    seqno = multi_decode(msg['seqno'])
+    topicIDs = list(map(lambda t: multi_decode(t).decode('UTF-8'), msg['topicIDs']))
     data:str = ''
     try:
-        data = decode(msg['data']).decode('UTF-8')
+        data = multi_decode(msg['data']).decode('UTF-8')
     except UnicodeDecodeError as e:
         error(f'Message data from peer {peer} with seqno {seqno} is not UTF-8 encoded Unicode text. Skipping.')
         return False
     except Exception as e:
         error(f'Error decoding message data from peer {peer} with seqno {seqno}: {e}')
         return False
-    classifier = TextClassifier()
-    data = classifier.classify(data)
+    if not perspective_classifier is None:
+        per_data = perspective_classifier.classify(data)
+        publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(per_data).encode('utf-8'))
+    else:
+        info('Not using Google Perspective API.')
     return True
 
 def process_log_entry(msg, pubtopic) -> bool:
@@ -66,7 +71,7 @@ def process_log_entry(msg, pubtopic) -> bool:
             fh.write(file_bytes)
         debug(f'Created temporary file: {file_name}.')
         if file_is_image:
-            classifier = Classifier(file_name)
+            classifier = NfswClassifier(file_name)
             data =list(classifier.classify().values())[0] 
             info(f'Classification for image {file_hash}: {data}')
             classifier.image.close()

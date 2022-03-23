@@ -33,7 +33,6 @@ class TextClassifier(TextClassifier):
         pass
 
     def classify(self, text:str, use_experimental_attributes=False): 
-        "Classify a span of text."""
         assert api_key != ''
         with begin("Classifying text span using Google Perspective API") as op:
             client = discovery.build(

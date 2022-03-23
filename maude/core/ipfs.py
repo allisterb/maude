@@ -40,7 +40,7 @@ def subscribe(topic:str, q:queue.Queue):
                 q.put(message)
     except Exception as e:
         ex_msg = f'Exception subscribing to {topic}: {e}'
-        debug(f'Exception subscribing to {topic}: {e}')
+        debug(ex_msg)
         if str(ex_msg).endswith('Read timed out.'):
             q.put('timeout')
         else:
@@ -92,7 +92,7 @@ def get_object(cid:str):
     
 def get_dag_node(cid:str):
     if not cid in dag_node_cache:
-        debug(f'Requesting object with cid {cid}.')
+        debug(f'Requesting DAG node with cid {cid}.')
         dag_node_cache[cid] = ipfsclient.dag.get(cid)
     return dag_node_cache[cid]
 
@@ -103,10 +103,8 @@ def get_links(cid:str):
     return object_links_cache[cid]
 
 def is_file_or_dir(cid:str):
-    
     if 'Links' in get_links(cid):
         return True
     else:
         #return not (len(object_links_cache[cid]) == 1 and 'Hash' in object_links_cache[cid] and object_links_cache[cid]['Hash'] == cid)
-        
         return False
