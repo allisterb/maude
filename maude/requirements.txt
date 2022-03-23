@@ -1,7 +1,6 @@
 click
 rich
 pyfiglet
-perspective
 spacy
 praw
 multiaddr
@@ -9,3 +8,4 @@ py-multibase
 filetype
 py-cid
 google-api-python-client
+pycryptodome

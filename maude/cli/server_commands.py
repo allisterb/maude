@@ -60,7 +60,7 @@ def subscribe(ipfs_node, id, perspective_api_key):
                 exit_with_error(f'An error occurred monitoring the message queue for topic {subtopic}.')
             else:
                 debug('Restarting IPFS subscription after timeout.')
-                message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(f, message_queue), name='message_queue_thread', daemon=True)
+                message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(encoded_subtopic, message_queue), name='message_queue_thread', daemon=True)
                 message_queue_thread.start()
         
         running_time = time() - start_time
@@ -69,7 +69,6 @@ def subscribe(ipfs_node, id, perspective_api_key):
             if not log_message == last_log_message: 
                 info(f'maude server running in subscribe mode for {timedelta(seconds=int(running_time))}. Processed {message_count} total messages. Press [ENTER] to shutdown.')
                 last_log_message = log_message
-    
     info("maude server shutdown.")
 
 @servercmd.command()  
@@ -108,5 +107,4 @@ def monitor(ipfs_node, id, log_file):
             if not log_message == last_log_message: 
                 info(f'maude server running in monitor mode for {timedelta(seconds=int(running_time))}. Processed {message_count} total log entries. Press [ENTER] to shutdown.')
                 last_log_message = log_message
-    
     info("maude server shutdown.")
