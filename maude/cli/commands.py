@@ -16,6 +16,10 @@ def text(): pass
 def data_import(): pass
 
 @parse.group()
+def crypto():
+    pass
+
+@parse.group()
 def ipfs():
     pass
 
@@ -26,5 +30,6 @@ def server():
 import cli.image_commands
 import cli.text_commands
 import cli.data_import_commands
+import cli.crypto_commands
 import cli.ipfs_commands
 import cli.server_commands
