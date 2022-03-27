@@ -1,4 +1,5 @@
 # Based on https://realpython.com/python-timer/
+from distutils.log import debug
 import time
 from logging import info, error
 
@@ -61,9 +62,9 @@ class Op:
 
     def __exit__(self, ex_type, ex, tb):
         if not (self.completed or self.abandoned):
-            if ex is not None:
-                exception_handler(ex_type, ex, tb)
+            if (ex is not None): 
+                debug(f'Exception raised in context: {ex}')
             self.abandon()
-        return True
-
+            return ex is None
+        
 def begin(op): return Op(op)
