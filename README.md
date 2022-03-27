@@ -3,4 +3,4 @@
 </p>
 
 # maude
-Autonomous decentralized content moderation for IPFS and Web3.
+Autonomous decentralized moderation for IPFS and Web3.
