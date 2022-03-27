@@ -24,6 +24,7 @@ def exception_handler(exc_type, exc, tb):
                 max_frames=100,
             )
         )
+
 def serialize_to_json(obj):
     json.dumps(obj, default=_json_dumper, indent=2)
 

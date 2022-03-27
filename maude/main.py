@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore", category=VersionMismatch)
 
 def unhandled_exception_handler(ex_type, ex, tb):
     exception_handler(ex_type, ex, tb)
-    error('An runtime exception occurred. maude will now exit.')
+    error("An runtime exception occurred. maude will now exit.")
          
 sys.excepthook = unhandled_exception_handler
 
@@ -32,9 +32,11 @@ if __name__ == '__main__':
     
     # Print logo
     from pyfiglet import Figlet
-    from rich import print
+    from colorama import Fore,Style
     fig = Figlet(font='chunky')
-    print('[cyan]' + fig.renderText('maud3') + '[/cyan]', '0.1' + os.linesep)
+    print(Fore.CYAN, fig.renderText('maud3')) 
+    print('0.1' + os.linesep)
+    print(Style.RESET_ALL)
 
     # Start thread to capture key press
     import threading
@@ -43,4 +45,3 @@ if __name__ == '__main__':
     # Parse CLI commands
     from cli.commands import parse
     parse()
-    
