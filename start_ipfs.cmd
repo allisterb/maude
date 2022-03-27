@@ -16,7 +16,7 @@ if not "%2"=="" (
 call set_ipfs_logging %LOG_FILE%
 if not %ERRORLEVEL% == 0 goto SetLogFileError
 
-start %IPFS_CMD% daemon --enable-pubsub-experiment
+start %IPFS_CMD% daemon --enable-pubsub-experiment --upgrade-cidv0-in-output
 if not %ERRORLEVEL% == 0 goto StartError
 
 echo Started IPFS daemon configured for maud3 monitoring. 

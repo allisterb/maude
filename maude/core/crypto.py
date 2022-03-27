@@ -4,6 +4,9 @@ from Crypto.PublicKey import RSA
 
 from base.timer import begin
 
+private_key:RSA.RsaKey = None
+public_key:RSA.RsaKey = None
+
 def generate_rsa_key_pair(private_key_filename='maude.pem', public_key_filename='maude_public.pem'):
     with begin('Generating RSA key-pair') as op:
         keypair = RSA.generate(2048)
@@ -20,3 +23,6 @@ def generate_rsa_key_pair(private_key_filename='maude.pem', public_key_filename=
         info(f'Wrote public key in PEM format to {public_key_filename}.')
         op.complete()
     
+def load_private_key(private_key_filename):
+    with open(private_key_filename, 'rb') as f:
+        private_key = RSA.import_key(f.read())
