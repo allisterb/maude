@@ -7,10 +7,11 @@ from queue import Queue
 import click
 from rich import print
 from multibase import encode as multi_encode
+from base.timer import begin
 
 import maude_global
 import text.perspective_classifier
-from core import ipfs, server
+from core import ipfs, server, crypto
 from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
@@ -82,9 +83,15 @@ def subscribe(ipfs_node, id, keyfile, perspective_api_key):
 @servercmd.command(help='Monitor a local IPFS instance for pin requests for CIDs.')  
 @click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
+@click.option('--keyfile', default='{instance_id}.pem')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
-def monitor(ipfs_node, id, log_file):
+def monitor(ipfs_node, id, keyfile, log_file):
     init_ipfs_client(ipfs_node)
+    if keyfile == '{instance_id}.pem':
+        keyfile = id + '.pem'
+    with begin(f'Loading private key from {keyfile}') as op:
+        crypto.private_key = crypto.load_private_key(keyfile)
+        op.complete()
     pubtopic = id
     info(f'IPFS log file is {log_file}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
