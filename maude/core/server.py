@@ -3,14 +3,18 @@ import json
 
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
+
 from multibase import decode as multi_decode, encode
 from filetype import guess_extension, get_bytes, is_image, is_video
+from Crypto.PublicKey.RSA import RsaKey
 
 from text.perspective_classifier import TextClassifier as PerspectiveTextClassifier, api_key as perspective_api_key
 from core.ipfs import get_file, is_file_or_dir, publish
 from image.nfsw_classifier import Classifier as NfswClassifier
 
-perspective_classifier = None
+private_key:RsaKey = None
+public_key:RsaKey = None
+perspective_classifier:PerspectiveTextClassifier = None
 
 def process_sub_message(msg, pubtopic):
     peer:str = msg['from']

@@ -9,7 +9,7 @@ from core import ipfs
 
 def init_ipfs_client(api_url=None):
     with begin("Connecting to IPFS node") as op:
-        ipfs.ipfsclient = ipfshttpclient.connect(session=True)
+        ipfs.ipfsclient = ipfshttpclient.connect(session=True) if api_url == '/dns/localhost/tcp/5001/http' else ipfshttpclient.connect(addr=api_url, session=True)
         op.complete()
         
 @ipfscmd.command('info')

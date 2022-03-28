@@ -1,7 +1,6 @@
 # Based on https://realpython.com/python-timer/
-from distutils.log import debug
 import time
-from logging import info, error
+from logging import info, error,debug
 
 from .runtime import exception_handler
 

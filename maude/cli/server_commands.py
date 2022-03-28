@@ -5,6 +5,7 @@ from logging import info, error, debug, warning
 from queue import Queue
 
 import click
+from rich import print
 from multibase import encode as multi_encode
 
 import maude_global
@@ -14,11 +15,18 @@ from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
 
-@servercmd.command()  
-@click.option('--ipfs-node')
+@servercmd.command(help='Get the IPFS client id maude will use.')  
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
+def ipfs_id(ipfs_node):
+    init_ipfs_client(ipfs_node)
+    print(ipfs.get_client_id())
+
+@servercmd.command(help='Subscribe to an IPFS pubsub topic and listen for requests.')  
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
+@click.option('--keyfile', default='{instance_id}.pem')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
-def subscribe(ipfs_node, id, perspective_api_key):
+def subscribe(ipfs_node, id, keyfile, perspective_api_key):
     init_ipfs_client(ipfs_node)
     subtopic = id + '_to' 
     pubtopic = id 
@@ -71,8 +79,8 @@ def subscribe(ipfs_node, id, perspective_api_key):
                 last_log_message = log_message
     info("maude server shutdown.")
 
-@servercmd.command()  
-@click.option('--ipfs-node')
+@servercmd.command(help='Monitor a local IPFS instance for pin requests for CIDs.')  
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
 def monitor(ipfs_node, id, log_file):
