@@ -26,9 +26,10 @@ def generate_rsa_key_pair(private_key_filename='maude.pem', public_key_filename=
         info(f'Wrote public key in PEM format to {public_key_filename}.')
         op.complete()
     
-def load_key(keyfile):
+def load_private_key(keyfile):
+    global private_key
     with open(keyfile, 'rb') as f:
-         return import_key(f.read())
+         private_key = import_key(f.read())
 
 def sign_PKCS1(msg):
     assert(private_key is not None)
@@ -36,6 +37,6 @@ def sign_PKCS1(msg):
         hash = SHA256.new(msg.encode('utf-8'))
         signer = PKCS115_SigScheme(private_key)
         signature = signer.sign(hash)
-        debug("Message signature:", binascii.hexlify(signature))
+        debug("Message signature:", binascii.b2a_base64(signature))
         op.complete()
         return signature

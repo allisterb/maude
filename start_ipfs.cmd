@@ -28,7 +28,7 @@ set ERROR_CODE=1
 goto End
 
 :StartError
-echo Could not start the IPFS daemon using %IPFS_CMD% daemon --enable-pubsub-experiment.
+echo Could not start the IPFS daemon using %IPFS_CMD% daemon --enable-pubsub-experiment --upgrade-cidv0-in-output.
 set ERROR_CODE=2
 goto End
 

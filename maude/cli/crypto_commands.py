@@ -17,7 +17,7 @@ def crypto_generate_keys(privkey, pubkey):
 @click.argument('message')
 @click.argument('keyfile', type=click.Path(exists=True), default='maude.pem')
 def crypto_sign(message, keyfile):
-   core.crypto.private_key = core.crypto.load_key(keyfile)
-   s = binascii.hexlify(core.crypto.sign_PKCS1(message))
+   core.crypto.load_private_key(keyfile)
+   s = binascii.b2a_base64(core.crypto.sign_PKCS1(message))
    info (f'PKCS#1 signature for {message} is {s}.')
 
