@@ -130,3 +130,5 @@ dmypy.json
 /models
 
 *.pem
+*.mkv
+*.mp4
