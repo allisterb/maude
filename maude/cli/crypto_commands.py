@@ -13,11 +13,10 @@ def crypto_generate_keys(privkey, pubkey):
    from core.crypto import generate_rsa_key_pair
    generate_rsa_key_pair(privkey, pubkey)
 
-@crypto.command('sign', help='Generate a RSA 2048-bit public/private key pair for maude.')
+@crypto.command('sign', help='Sign a text message using the specified private keyfile using the PKCS#1 scheme.')
 @click.argument('message')
 @click.argument('keyfile', type=click.Path(exists=True), default='maude.pem')
 def crypto_sign(message, keyfile):
    core.crypto.load_private_key(keyfile)
    s = binascii.b2a_base64(core.crypto.sign_PKCS1(message))
    info (f'PKCS#1 signature for {message} is {s}.')
-

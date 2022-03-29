@@ -10,11 +10,18 @@ from filetype import guess_extension, get_bytes, is_image, is_video
 from core.ipfs import get_file, is_file_or_dir, publish
 from core.crypto import sign_PKCS1
 from text.perspective_classifier import TextClassifier as PerspectiveTextClassifier
-from image.nfsw_classifier import Classifier as NfswClassifier
+from image.nfsw_classifier import Classifier as NsfwClassifier
+from image.nudenet_classifier import Classifier as NudeNetClassifier
 
+nsfw_classifier:NsfwClassifier = None
+nudenet_classifier:NudeNetClassifier = None
 perspective_classifier:PerspectiveTextClassifier = None
 
 def process_sub_message(msg, pubtopic):
+    global nsfw_classifier
+    global nudenet_classifier
+    global perspective_classifier
+    
     peer:str = msg['from']
     seqno = multi_decode(msg['seqno'])
     topicIDs = list(map(lambda t: multi_decode(t).decode('UTF-8'), msg['topicIDs']))
@@ -73,10 +80,8 @@ def process_log_entry(msg, pubtopic) -> bool:
             fh.write(file_bytes)
         debug(f'Created temporary file: {file_name}.')
         if file_is_image:
-            classifier = NfswClassifier(file_name)
-            data =list(classifier.classify().values())[0] 
+            data =list(nsfw_classifier.classify(file_name).values())[0] 
             info(f'Classification for image {file_hash}: {data}')
-            classifier.image.close()
             os.remove(file_name)
             publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
             

@@ -11,6 +11,8 @@ from base.timer import begin
 
 import maude_global
 import text.perspective_classifier
+import image.nfsw_classifier
+import image.nudenet_classifier
 from core import ipfs, server, crypto
 from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
@@ -34,6 +36,8 @@ def subscribe(ipfs_node, id, keyfile, perspective_api_key):
     info(f'Maude instance id is {id}.')
     info(f'Subscribed to IPFS topic {subtopic}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
+    server.nsfw_classifier = image.nfsw_classifier.Classifier()
+    server.nudenet_classifier = image.nudenet_classifier.Classifier()
     if not perspective_api_key is None:
         text.perspective_classifier.api_key = perspective_api_key
         server.perspective_classifier = text.perspective_classifier.TextClassifier()
