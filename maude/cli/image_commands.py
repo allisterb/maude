@@ -5,8 +5,9 @@ from rich import print
 from cli.commands import image
 from cli.util import *
 
-@image.command('classify')
-@click.argument('model')
+@image.command('classify', help='Classify a local image file using computer vision models.')
+@click.option('--nsfw', 'model', flag_value='nsfw', default=True,  help='Use the nsfw model: https://github.com/GantMan/nsfw_model.')
+@click.option('--nudenet', 'model', flag_value='nudenet', help='Use the NudeNet model: https://github.com/notAI-tech/NudeNet.')
 @click.argument('filename', type=click.Path(exists=True))
 def image_classify(model, filename):
     if model == 'nsfw':

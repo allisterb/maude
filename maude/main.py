@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore", category=VersionMismatch)
 
 def unhandled_exception_handler(ex_type, ex, tb):
     exception_handler(ex_type, ex, tb)
-    error("An runtime exception occurred. maude will now exit.")
+    error("A runtime exception occurred. maude will now exit.")
          
 sys.excepthook = unhandled_exception_handler
 

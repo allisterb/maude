@@ -18,6 +18,9 @@ class Classifier(ImageClassifier):
             if not maude_global.DEBUG:
                 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
                 onnxruntime.set_default_logger_severity(3)
+            #else:
+                #tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.DEBUG)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
+                #onnxruntime.set_default_logger_severity(1)
             self.classifier = NudeClassifier(self.model_dir)
             op.complete()
         
