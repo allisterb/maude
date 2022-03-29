@@ -6,15 +6,15 @@ import onnxruntime
 
 import maude_global
 from base.timer import begin
-from core.image_classifier import ImageClassifier
+from core.video_classifier import VideoClassifier
 from NudeNet.nudenet import NudeClassifier, NudeDetector
 
-class Classifier(ImageClassifier):
-    """NudeNet detection machine learning model"""
+class Classifier(VideoClassifier):
+    """NudeNet machine learning model"""
 
     def __init__(self):
         super().__init__("NudeNet machine learning model", os.path.join(maude_global.MAUDE_DIR, 'models', 'nudenet'))
-        with begin(f'Loading image classification model: {self.model_dir}') as op:
+        with begin(f'Loading video classification model: {self.model_dir}') as op:
             if not maude_global.DEBUG:
                 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
                 onnxruntime.set_default_logger_severity(3)
@@ -31,8 +31,8 @@ class Classifier(ImageClassifier):
     def get_label_for_index(self, _):
         return ''
 
-    def classify(self, image_source):
-        return self.classifier.classify(image_source)
-        
-    def detect_image(self, image_source):
-        return self.detector.detect(image_source)
+    def classify(self, video_source):
+        return self.classifier.classify_video(video_source)
+
+    def detect_objects(self, video_source):
+        return self.detector.detect_video(video_source)

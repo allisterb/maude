@@ -10,6 +10,9 @@ def parse(): pass
 def image(): pass
 
 @parse.group()
+def video(): pass
+
+@parse.group()
 def text(): pass
 
 @parse.group('import')
@@ -28,6 +31,7 @@ def server():
     pass
 
 import cli.image_commands
+import cli.video_commands
 import cli.text_commands
 import cli.data_import_commands
 import cli.crypto_commands

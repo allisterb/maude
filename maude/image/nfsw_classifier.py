@@ -13,7 +13,7 @@ class Classifier(ImageClassifier):
 
     def __init__(self):
         super().__init__("NSFW Detection Machine Learning Model", os.path.join(MAUDE_DIR, 'models', 'mobilenet_v2_140_224'))
-        with begin(f'Loading model: {self.model_dir}') as op:
+        with begin(f'Loading image classification model: {self.model_dir}') as op:
             tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
             self.model = predict.load_model(self.model_dir)
             op.complete()
