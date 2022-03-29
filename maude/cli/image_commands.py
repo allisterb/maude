@@ -20,8 +20,8 @@ def image_classify(model, filename):
         from image.nudenet_classifier import Classifier
         nn = Classifier()
         d = nn.classify(filename)
+        info(f'nudenet classification data for {filename}:')
         print(list(d.values())[0])
     
     else:
         exit_with_error(f'Unknown image classification model: {model}.')
-        

@@ -2,9 +2,10 @@ import os
 from logging import info
 
 import tensorflow as tf
+import onnxruntime
 
+import maude_global
 from base.timer import begin
-from maude_global import MAUDE_DIR
 from core.image_classifier import ImageClassifier
 from NudeNet.nudenet import NudeClassifier
 
@@ -12,9 +13,11 @@ class Classifier(ImageClassifier):
     """NudeNet Detection Machine Learning Model"""
 
     def __init__(self):
-        super().__init__("NudeNet Machine Learning Model", os.path.join(MAUDE_DIR, 'models', 'nudenet'))
+        super().__init__("NudeNet Machine Learning Model", os.path.join(maude_global.MAUDE_DIR, 'models', 'nudenet'))
         with begin(f'Loading model: {self.model_dir}') as op:
-            tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
+            if not maude_global.DEBUG:
+                tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
+                onnxruntime.set_default_logger_severity(3)
             self.classifier = NudeClassifier(self.model_dir)
             op.complete()
         
