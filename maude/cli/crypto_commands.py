@@ -13,7 +13,7 @@ def crypto_generate_keys(privkey, pubkey):
    from core.crypto import generate_rsa_key_pair
    generate_rsa_key_pair(privkey, pubkey)
 
-@crypto.command('sign', help='Sign a text message using the specified private keyfile using the PKCS#1 scheme.')
+@crypto.command('sign', help='Sign a text message using the specified private key.')
 @click.argument('message')
 @click.argument('keyfile', type=click.Path(exists=True), default='maude.pem')
 def crypto_sign(message, keyfile):

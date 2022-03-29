@@ -18,12 +18,6 @@ from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
 
-@servercmd.command(help='Get the IPFS client id maude will use.')  
-@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
-def ipfs_id(ipfs_node):
-    init_ipfs_client(ipfs_node)
-    print(ipfs.get_client_id())
-
 @servercmd.command(help='Subscribe to an IPFS pubsub topic and listen for requests.')  
 @click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
@@ -97,8 +91,8 @@ def monitor(ipfs_node, id, keyfile, log_file):
         crypto.private_key = crypto.load_private_key(keyfile)
         op.complete()
     pubtopic = id
-    info(f'IPFS log file is {log_file}.')
-    info(f'Publishing to IPFS topic {pubtopic}.')
+    info(f'Reading IPFS log file {log_file}...')
+    info(f'Publishing to IPFS topic {pubtopic}...')
     
     message_queue = Queue()
     message_count = 0
