@@ -4,3 +4,6 @@
 [submodule "ext/py-ipfs-http-client"]
 	path = ext/pyipfs
 	url = https://github.com/allisterb/py-ipfs-http-client.git
+[submodule "ext/NudeNet"]
+	path = ext/NudeNet
+	url = https://github.com/allisterb/NudeNet.git
