@@ -6,5 +6,5 @@
 1. Create a venv e.g `python3 -m venv maude` and activate it.
 2. Clone the repo and run `install.cmd` on Windows or `install.sh` on *nix/macOS.
 3. Download `models.zip` or `models.tar.gz` from the latest [release](https://github.com/allisterb/maude/releases) and unzip/untar in the root repo directory so you have a `models` directory alongside `doc` and `test` et.al.
-4. Use the `start_ipfs` scripts to start an IPFS instance or set the appropriate environment variables and flags yourself based on what the script says. IPFS needs to run with the `--enable-pubsub-experiment` flag and JSON log output. See the scripts for full details.
+4. Use the `start_ipfs` scripts to start an IPFS instance or set the appropriate environment variables and flags yourself based on what the script says. IPFS needs to run with the `--enable-pubsub-experiment` flag and JSON log output. See the [script](https://github.com/allisterb/maude/blob/master/start_ipfs.sh) for full details.
 4. Run `maude` or `maude.sh` from the root repo folder.
