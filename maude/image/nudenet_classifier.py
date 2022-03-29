@@ -7,7 +7,7 @@ import onnxruntime
 import maude_global
 from base.timer import begin
 from core.image_classifier import ImageClassifier
-from NudeNet.nudenet import NudeClassifier
+from NudeNet.nudenet import NudeClassifier, NudeDetector
 
 class Classifier(ImageClassifier):
     """NudeNet Detection Machine Learning Model"""
@@ -22,6 +22,7 @@ class Classifier(ImageClassifier):
                 #tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.DEBUG)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
                 #onnxruntime.set_default_logger_severity(1)
             self.classifier = NudeClassifier(self.model_dir)
+            self.detector = NudeDetector(self.model_dir)
             op.complete()
         
     def get_model_info(self):
@@ -32,3 +33,6 @@ class Classifier(ImageClassifier):
 
     def classify(self, image_source):
         return self.classifier.classify(image_source)
+        
+    def detect_image(self, image_source):
+        return self.detector.detect(image_source)

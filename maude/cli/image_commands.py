@@ -1,3 +1,4 @@
+import json
 from logging import info
 
 import click
@@ -14,15 +15,17 @@ def image_classify(model, filename):
         from image.nfsw_classifier import Classifier
         nfsw = Classifier()
         d = nfsw.classify(filename)
-        info(f'nfsw classification data for {filename}:')
+        info(f'nfsw_model classification data for {filename}:')
         print(list(d.values())[0])
     
     elif model == 'nudenet':
         from image.nudenet_classifier import Classifier
         nn = Classifier()
-        d = nn.classify(filename)
-        info(f'nudenet classification data for {filename}:')
-        print(list(d.values())[0])
-    
+        cd = nn.classify(filename)
+        dd = nn.detect_image(filename)
+        data = list(cd.values())[0] 
+        data['objects'] = dd  
+        info(f'NudeNet classification and detection data for {filename}:')
+        print(data)
     else:
         exit_with_error(f'Unknown image classification model: {model}.')
