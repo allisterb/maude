@@ -1,6 +1,7 @@
 import os
 from logging import info
 
+import PIL
 import tensorflow as tf
 import onnxruntime
 
@@ -32,7 +33,14 @@ class Classifier(ImageClassifier):
         return ''
 
     def classify(self, image_source):
-        return self.classifier.classify(image_source)
+        image = self.get_image(image_source)
+        cd = self.classifier.classify(image_source)
+        dd = self.detector.detect(image_source)
+        data = list(cd.values())[0] 
+        data['height'] = image.height
+        data['width'] = image.width
+        data['format'] = image.format
+        image.close()
+        data['objects'] = dd
+        return data 
         
-    def detect_image(self, image_source):
-        return self.detector.detect(image_source)

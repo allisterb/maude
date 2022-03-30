@@ -1,7 +1,29 @@
 import os,sys
 from logging import info, error, warn, debug
-from typing import Any
 
+import maude_global
+def exception_handler(exc_type, exc, tb):
+    from rich.console import Console
+    from rich.traceback import Traceback
+    console = Console(file=sys.stderr)
+    console.print(
+            Traceback.from_exception(
+                exc_type,
+                exc,
+                tb,
+                width=100,
+                extra_lines=3,
+                theme=None,
+                word_wrap=False,
+                show_locals=True if maude_global.DEBUG else False,
+                indent_guides=True,
+                suppress=(),
+                max_frames=100,
+            )
+        )
+def unhandled_exception_handler(ex_type, ex, tb):
+    exception_handler(ex_type, ex, tb)
+    error("A runtime exception occurred. maude will now exit.")
 def exit_success():
     sys.exit(0)
     

@@ -1,10 +1,10 @@
-import json
 from logging import info
 
 import click
 from rich import print
+
 from cli.commands import image
-from cli.util import *
+from cli.util import exit_with_error
 
 @image.command('classify', help='Classify a local image file using computer vision models.')
 @click.option('--nsfw', 'model', flag_value='nsfw', default=True,  help='Use the nsfw model: https://github.com/GantMan/nsfw_model.')
@@ -21,11 +21,8 @@ def image_classify(model, filename):
     elif model == 'nudenet':
         from image.nudenet_classifier import Classifier
         nn = Classifier()
-        cd = nn.classify(filename)
-        dd = nn.detect_image(filename)
-        data = list(cd.values())[0] 
-        data['objects'] = dd  
         info(f'NudeNet classification and detection data for {filename}:')
-        print(data)
+        print(nn.classify(filename))
+    
     else:
         exit_with_error(f'Unknown image classification model: {model}.')

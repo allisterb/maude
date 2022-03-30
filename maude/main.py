@@ -3,7 +3,6 @@ import warnings
 from logging import info,error
 
 import maude_global
-from base.runtime import exception_handler
 
 # Needs corresponding entry in PYTHONPATH or .env file for development.
 sys.path.append(os.path.join(maude_global.MAUDE_DIR, 'ext'))
@@ -14,14 +13,10 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=VersionMismatch)
 
-def unhandled_exception_handler(ex_type, ex, tb):
-    exception_handler(ex_type, ex, tb)
-    error("A runtime exception occurred. maude will now exit.")
-         
-sys.excepthook = unhandled_exception_handler
-
 if __name__ == '__main__': 
     """Entry-point for CLI"""
+    from cli.util import unhandled_exception_handler
+    sys.excepthook = unhandled_exception_handler
     maude_global.INTERACTIVE_CLI = True
     if '--debug' in sys.argv[1:]:
         maude_global.DEBUG = True

@@ -2,8 +2,6 @@
 import time
 from logging import info, error,debug
 
-from .runtime import exception_handler
-
 class TimerException(Exception):
     """A custom exception used to report errors in use of Timer class"""
 
@@ -28,7 +26,7 @@ class Timer:
         elapsed_time = time.perf_counter() - self._start_time
         self._start_time = None
         if self.op == '':
-            print(self.text.format(elapsed_time))
+            info(self.elapsed_text.format(elapsed_time))
         else:
             pass
 
