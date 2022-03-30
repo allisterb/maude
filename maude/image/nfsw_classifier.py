@@ -25,4 +25,8 @@ class Classifier(ImageClassifier):
         return ''
 
     def classify(self, image_source):
-        return predict.classify(self.model, image_source)
+        with begin(f'Classifying {image_source} using NudeNet') as op:
+            d = predict.classify(self.model, image_source)
+            op.complete()
+            return list(d.values())[0]
+        

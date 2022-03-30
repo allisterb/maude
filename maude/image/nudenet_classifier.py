@@ -33,14 +33,16 @@ class Classifier(ImageClassifier):
         return ''
 
     def classify(self, image_source):
-        image = self.get_image(image_source)
-        cd = self.classifier.classify(image_source)
-        dd = self.detector.detect(image_source)
-        data = list(cd.values())[0] 
-        data['height'] = image.height
-        data['width'] = image.width
-        data['format'] = image.format
-        image.close()
-        data['objects'] = dd
-        return data 
+        with begin(f'Classifying {image_source} using NudeNet') as op:
+            image = self.get_image(image_source)
+            cd = self.classifier.classify(image_source)
+            dd = self.detector.detect(image_source)
+            data = list(cd.values())[0] 
+            data['height'] = image.height
+            data['width'] = image.width
+            data['format'] = image.format
+            image.close()
+            data['objects'] = dd
+            op.complete()
+            return data 
         

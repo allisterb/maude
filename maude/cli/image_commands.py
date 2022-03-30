@@ -1,4 +1,6 @@
-from logging import info
+from platform import platform
+import sys
+from logging import info, error
 
 import click
 from rich import print
@@ -14,9 +16,8 @@ def image_classify(model, filename):
     if model == 'nsfw':
         from image.nfsw_classifier import Classifier
         nfsw = Classifier()
-        d = nfsw.classify(filename)
         info(f'nfsw_model classification data for {filename}:')
-        print(list(d.values())[0])
+        print(nfsw.classify(filename))
     
     elif model == 'nudenet':
         from image.nudenet_classifier import Classifier
@@ -26,3 +27,13 @@ def image_classify(model, filename):
     
     else:
         exit_with_error(f'Unknown image classification model: {model}.')
+
+@image.command('photodna', help='Generate a Microsoft PhotoDNA hash of a local image file.')
+@click.option('--libpath', default=None, help='The path to the Microsoft PhotoDNA library, or omit to use the default path. See: https://github.com/jankais3r/pyPhotoDNA.')
+@click.argument('filename', type=click.Path(exists=True))
+def photodna_hash(libpath, filename,):
+    if not ((sys.platform == "win32") or (sys.platform == "darwin")):
+        exit_with_error('Microsoft PhotoDNA is only supported on Windows and macOS.')
+    from image.ms_photodna import generateHash
+    print(f'Microsoft PhotoDNA hash of {filename} is {generateHash(filename, libpath)}')
+
