@@ -1,6 +1,8 @@
 # Contains code from https://github.com/clamwin/python-clamav/blob/master/clamav.py
 from base64 import decode
 import os
+from ctypes import cdll
+from ctypes.util import find_library
 import tempfile
 from logging import info, error
 
@@ -9,6 +11,15 @@ import binary.clamav as clamav
 import maude_global
 from base.timer import begin
 from core.binary_classifier import BinaryClassifier
+
+def libraryAvailable():
+    library = find_library('clamav') or find_library('libclamav') or 'libclamav'
+    try:
+        libPhotoDNA = cdll[library]
+        return True
+    except OSError as e:
+        return False
+
 
 class Classifier(BinaryClassifier):
     """ClamAV binary classifier"""

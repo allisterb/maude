@@ -104,6 +104,7 @@ def monitor(ipfs_node, id, keyfile, log_file):
     server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
     server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
     server.photoDNAHash = image.ms_photodna.libraryAvailable()
+    server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
 
     message_queue = Queue()
     message_count = 0

@@ -25,6 +25,7 @@ nudenet_image_classifier: NudeNetImageClassifier = None
 nudenet_video_classifier: NudeNetVideoClassifier = None
 perspective_classifier: PerspectiveTextClassifier = None
 photoDNAHash = False
+clamAVAvailable = False
 
 def process_sub_message(msg, pubtopic):
     global nsfw_classifier
@@ -111,9 +112,10 @@ def process_log_entry(msg, pubtopic) -> bool:
             data = yara_classifier.classify(file_name)
             info(f'YARA classification data for binary {file_hash}: {data}')
             publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
-            data = clamav_classifier.classify(file_name)
-            info(f'ClamAV classification data for binary {file_hash}: {data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
+            if clamAVAvailable:
+                data = clamav_classifier.classify(file_name)
+                info(f'ClamAV classification data for binary {file_hash}: {data}')
+                publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
             os.remove(file_name)
             publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
         
