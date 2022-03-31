@@ -1,4 +1,5 @@
 # Contains code from https://github.com/clamwin/python-clamav/blob/master/clamav.py
+from base64 import decode
 import os
 import tempfile
 from logging import info, error
@@ -25,9 +26,9 @@ class Classifier(BinaryClassifier):
         
     def classify(self, filename):
         with begin(f'Classifying {filename} using ClamAV database from {self.dbpath}') as op:
-            r = self.scanner.scanFile(filename)
+            id, sig = self.scanner.scanFile(filename)
             op.complete()
-            return r
+            return id, sig.decode('utf-8')
 
 
  

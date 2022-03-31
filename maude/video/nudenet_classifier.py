@@ -32,7 +32,10 @@ class Classifier(VideoClassifier):
         return ''
 
     def classify(self, video_source):
-        return self.classifier.classify_video(video_source)
+        d = self.classifier.classify_video(video_source)
+        d['frames'] = d['preds']
+        del d['preds']
+        return d
 
     def detect_objects(self, video_source):
         return self.detector.detect_video(video_source)

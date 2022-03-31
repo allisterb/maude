@@ -9,11 +9,15 @@ from rich import print
 from multibase import encode as multi_encode
 from base.timer import begin
 
+from core import ipfs, server, crypto
 import maude_global
+import binary.yara_classifier
+import binary.clamav_classifier
 import text.perspective_classifier
 import image.nfsw_classifier
 import image.nudenet_classifier
-from core import ipfs, server, crypto
+import video.nudenet_classifier
+import image.ms_photodna
 from cli.commands import server as servercmd
 from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
@@ -94,6 +98,13 @@ def monitor(ipfs_node, id, keyfile, log_file):
     info(f'Reading IPFS log file {log_file}...')
     info(f'Publishing to IPFS topic {pubtopic}...')
     
+    server.yara_classifier = binary.yara_classifier.Classifier('binaryalert')
+    server.clamav_classifier = binary.clamav_classifier.Classifier()
+    server.nsfw_classifier = image.nfsw_classifier.Classifier()
+    server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
+    server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
+    server.photoDNAHash = image.ms_photodna.libraryAvailable()
+
     message_queue = Queue()
     message_count = 0
     start_time = time()

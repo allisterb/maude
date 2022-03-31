@@ -6,6 +6,8 @@ import glob
 import time
 import base64
 import multiprocessing
+from logging import info, error
+
 from ctypes import cast
 from ctypes import cdll
 from ctypes import c_int
@@ -14,6 +16,19 @@ from ctypes import POINTER
 from ctypes import c_char_p
 
 from PIL import Image
+def libraryAvailable(lib_path=None):
+    if lib_path is None:
+        if sys.platform == "win32":
+            lib_path = 'PhotoDNAx64.dll'
+        elif sys.platform == "darwin":
+            lib_path = 'PhotoDNAx64.so'
+        else: 
+            raise Exception('Linux is not supported by PhotoDNA.')
+    try:
+        libPhotoDNA = cdll.LoadLibrary(lib_path)
+        return True
+    except OSError as e:
+        return False
 
 def generateHash(image_source, lib_path=None) -> bytes:
     if lib_path is None:

@@ -82,7 +82,7 @@ class Classifier(BinaryClassifier):
                         # Bytes string is not unicode - print its hex values instead
                         string_data.add(data.hex())
                 yara_python_matches.append(
-                    YaraMatch(match.rule, match.namespace, match.meta, string_names, string_data))
+                    YaraMatch(match.rule, match.namespace, match.meta, list(string_names), list(string_data)))
             op.complete()
             return yara_python_matches
 

@@ -5,17 +5,26 @@ from logging import info, error, debug
 from tempfile import TemporaryDirectory
 
 from multibase import decode as multi_decode, encode
-from filetype import guess_extension, get_bytes, is_image, is_video
+from filetype import guess_extension, get_bytes, is_archive, is_image, is_video
 
+from base.runtime import serialize_to_json
 from core.ipfs import get_file, is_file_or_dir, publish
 from core.crypto import sign_PKCS1
+from binary.clamav_classifier import Classifier as ClamAVClassifier
+from binary.yara_classifier import Classifier as YARAClassifier
 from text.perspective_classifier import TextClassifier as PerspectiveTextClassifier
 from image.nfsw_classifier import Classifier as NsfwClassifier
-from image.nudenet_classifier import Classifier as NudeNetClassifier
+from image.nudenet_classifier import Classifier as NudeNetImageClassifier
+from video.nudenet_classifier import Classifier as NudeNetVideoClassifier
+from image.ms_photodna import generateHash
 
-nsfw_classifier:NsfwClassifier = None
-nudenet_classifier:NudeNetClassifier = None
-perspective_classifier:PerspectiveTextClassifier = None
+clamav_classifier: ClamAVClassifier = None
+yara_classifier: YARAClassifier = None
+nsfw_classifier: NsfwClassifier = None
+nudenet_image_classifier: NudeNetImageClassifier = None
+nudenet_video_classifier: NudeNetVideoClassifier = None
+perspective_classifier: PerspectiveTextClassifier = None
+photoDNAHash = False
 
 def process_sub_message(msg, pubtopic):
     global nsfw_classifier
@@ -69,9 +78,9 @@ def process_log_entry(msg, pubtopic) -> bool:
             info('The file can be decoded as UTF-8...assuming file type is txt.')
             file_type_ext = 'txt'
         except UnicodeDecodeError as _:
-            error(f'Could not determine the file type of {file_hash}. Skipping.')
-            return False
+            file_type_ext = 'unknown_bin'
     info(f'{file_hash} has type {file_type_ext} and length {len(file_bytes)} bytes.')
+    file_is_archive = is_archive(file_header)
     file_is_image = is_image(file_header)
     file_is_video = is_video(file_header)
     with TemporaryDirectory() as td:
@@ -79,11 +88,36 @@ def process_log_entry(msg, pubtopic) -> bool:
         with open(file_name, 'wb') as fh:
             fh.write(file_bytes)
         debug(f'Created temporary file: {file_name}.')
-        if file_is_image:
-            data =list(nsfw_classifier.classify(file_name).values())[0] 
-            info(f'Classification for image {file_hash}: {data}')
+    
+        if file_type_ext == 'txt':
+            data = yara_classifier.classify(file_name)
+            info(f'YARA classification for binary {file_hash}: {data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
+
+        elif file_is_image:
+            data = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
+            if (photoDNAHash):
+                data['photoDNA'] = generateHash(file_name)
+            info(f'NudeNet and nsfw_model classification data for image {file_hash}: {data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
+            os.remove(file_name)
+
+        elif file_is_video:
+            data = nudenet_video_classifier.classify(file_name)
+            info(f'NudeNet classification data for video {file_hash}: {data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json(data).encode('utf-8'))
+
+        else:
+            data = yara_classifier.classify(file_name)
+            info(f'YARA classification data for binary {file_hash}: {data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
+            data = clamav_classifier.classify(file_name)
+            info(f'ClamAV classification data for binary {file_hash}: {data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
             os.remove(file_name)
             publish(str(encode('base64url', pubtopic), 'utf-8'), json.dumps(data).encode('utf-8'))
+        
+          
             
 
 
