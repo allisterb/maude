@@ -23,7 +23,7 @@ def libraryAvailable(lib_path=None):
         elif sys.platform == "darwin":
             lib_path = 'PhotoDNAx64.so'
         else: 
-            raise Exception('Linux is not supported by PhotoDNA.')
+            return False
     try:
         libPhotoDNA = cdll.LoadLibrary(lib_path)
         return True
