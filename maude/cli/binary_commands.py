@@ -28,3 +28,23 @@ def analyze(filename, ruleset):
     from binary.yara_classifier import Classifier
     c = Classifier(ruleset)
     print(c.classify(filename))
+
+
+@binary.group('clamav', help='Run the ClamAV scanner.')
+def clamavcmd():
+    pass
+
+@clamavcmd.command('info', help='Get info on ClamAV.')
+def info():
+    from binary.clamav_classifier import Classifier
+    c = Classifier()
+    print(c.get_info())
+
+@clamavcmd.command('scan', help='Scan an executable or archive.')
+@click.argument('filename', type=click.Path(exists=True))
+def compile(filename):
+    from binary.clamav_classifier import Classifier
+    c = Classifier()
+    with begin(f'Scanning {filename} using ClamAV') as op:
+        print(c.classify(filename))
+        op.complete()

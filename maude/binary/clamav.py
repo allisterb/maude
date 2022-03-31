@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# Contains code from: https://github.com/clamwin/python-clamav/blob/master/clamav.py
 
 # Copyright (c) 2018-2021 Gianluigi Tiesi <sherpya@netfarm.it>
 # All rights reserved.

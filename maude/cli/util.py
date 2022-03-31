@@ -1,4 +1,5 @@
 import os,sys
+import click
 from logging import info, error, warn, debug
 
 import maude_global
@@ -17,7 +18,7 @@ def exception_handler(exc_type, exc, tb):
                 word_wrap=False,
                 show_locals=True if maude_global.DEBUG else False,
                 indent_guides=True,
-                suppress=(),
+                suppress=([click]),
                 max_frames=100,
             )
         )
