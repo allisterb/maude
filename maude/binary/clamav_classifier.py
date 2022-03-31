@@ -3,7 +3,7 @@ import os
 import tempfile
 from logging import info, error
 
-import binary.clamav
+import binary.clamav as clamav
 
 import maude_global
 from base.timer import begin

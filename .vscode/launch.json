@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "maude/main.py",
-            "args": ["server", "subscribe"],
+            "args": ["binary", "clamav", "info"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

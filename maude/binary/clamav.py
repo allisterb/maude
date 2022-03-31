@@ -440,7 +440,7 @@ class Scanner(object):
             if not os.path.isfile(dbpath):
                 continue
 
-            cvd = self.cl_cvdhead(dbpath)
+            cvd = self.cl_cvdhead(bytes(dbpath, encoding='utf-8'))
             if cvd:
                 versions[dbname] = cvd.contents.version
                 self.cl_cvdfree(cvd)
