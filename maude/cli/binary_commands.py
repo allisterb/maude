@@ -20,3 +20,11 @@ def compile(rules_dir, output_file):
     with begin(f'Compiling YARA rules in {rules_dir} to {output_file}') as op:
         compile_rules(rules_dir, output_file)
         op.complete()
+
+@yaracmd.command('analyze', help='Analyze an executable using a compiled YARA ruleset.')
+@click.argument('filename', type=click.Path(exists=True))
+@click.argument('ruleset', default='binaryalert')
+def analyze(filename, ruleset):
+    from binary.yara_classifier import Classifier
+    c = Classifier(ruleset)
+    print(c.classify(filename))

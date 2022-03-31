@@ -133,3 +133,4 @@ dmypy.json
 *.mkv
 *.mp4
 *.yara
+test/binaries/eicar.txt
