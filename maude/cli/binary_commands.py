@@ -6,7 +6,6 @@ from rich import print
 
 from base.timer import begin
 from cli.commands import binary
-from cli.util import exit_with_error
 
 @binary.group('yara', help='Run YARA rules on an executable.')
 def yaracmd():
@@ -28,7 +27,6 @@ def analyze(filename, ruleset):
     from binary.yara_classifier import Classifier
     c = Classifier(ruleset)
     print(c.classify(filename))
-
 
 @binary.group('clamav', help='Run the ClamAV scanner.')
 def clamavcmd():
