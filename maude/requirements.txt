@@ -9,3 +9,4 @@ filetype
 py-cid
 google-api-python-client
 pycryptodome
+yara-python

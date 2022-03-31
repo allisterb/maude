@@ -1,4 +1,3 @@
-from platform import platform
 import sys
 from logging import info, error
 
