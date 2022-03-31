@@ -390,17 +390,17 @@ class Scanner(object):
         if self.engine is None:
             raise ClamavException('cl_engine_new() failed')
 
-        self.cl_statinidir(self.dbpath, self.dbstats_p)
+        self.cl_statinidir(bytes(self.dbpath, encoding='utf-8'), self.dbstats_p)
 
         for opt, value in self.engine_options.items():
             if isinstance(value, int):
                 self.cl_engine_set_num(self.engine, opt, value)
             elif isinstance(value, str):
-                self.cl_engine_set_str(self.engine, opt, value)
+                self.cl_engine_set_str(self.engine, opt, bytes(value, encoding='utf-8'))
             else:
                 raise ClamavException('Invalid option value type %s: %r' % (type(value), value))
 
-        self.cl_load(self.dbpath, self.engine, byref(self.signo), self.dboptions)
+        self.cl_load(bytes(self.dbpath, encoding='utf-8'), self.engine, byref(self.signo), self.dboptions)
         self.cl_engine_compile(self.engine)
 
     def checkAndLoadDB(self):
@@ -423,7 +423,7 @@ class Scanner(object):
             raise ClamavException('No database loaded')
 
         virname = c_char_p()
-        ret = self.cl_scanfile(filename, byref(virname), None, self.engine, scanoptions())
+        ret = self.cl_scanfile(bytes(filename, encoding='utf-8'), byref(virname), None, self.engine, scanoptions())
         if ret not in (CL_CLEAN, CL_VIRUS):
             raise ClamavException(ret)
         return ret, virname.value

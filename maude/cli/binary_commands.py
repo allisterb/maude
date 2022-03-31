@@ -34,7 +34,7 @@ def analyze(filename, ruleset):
 def clamavcmd():
     pass
 
-@clamavcmd.command('info', help='Get info on ClamAV.')
+@clamavcmd.command('info', help='Get info on ClamAV databases.')
 def info():
     from binary.clamav_classifier import Classifier
     c = Classifier()
@@ -45,6 +45,5 @@ def info():
 def compile(filename):
     from binary.clamav_classifier import Classifier
     c = Classifier()
-    with begin(f'Scanning {filename} using ClamAV') as op:
-        print(c.classify(filename))
-        op.complete()
+    print(c.classify(filename))
+    
