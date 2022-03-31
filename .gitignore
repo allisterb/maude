@@ -132,3 +132,4 @@ dmypy.json
 *.pem
 *.mkv
 *.mp4
+*.yara
