@@ -10,3 +10,6 @@
 5. To use [Microsoft PhotoDNA](https://www.microsoft.com/en-us/photodna) hashing you must put the `PhotoDNAx64.dll` (Windows) or `PhotoDNAx64.so` (Mac) where the maude Python interpreter can find it: e.g. on Windows in the `Scripts` folder of your maude Python venv. See [here](https://github.com/jankais3r/pyPhotoDNA) for more info.
 6. On Windows the `libclamav*` DLLs are bundled with maude however on other platforms you'll have to install it yourself using your package manager or other method. See https://github.com/Cisco-Talos/clamav/blob/main/INSTALL.md for more info.
 7. Run `maude` or `maude.sh` from the root repo folder.
+
+# Getting started
+To start the maude server in monitor say `maude/maude.sh server monitor`. This will monitor a local IPFS node using the node's logs and detects when a CID is pinned locally. maude tries to detect the type of file being pinned -- a binary executable or archive or a document like a pdf, or a media file like an image or video. It then runs different classifiers and detectors on the file like computer vision models that can detect NSFW images and videos, and malware detectors like ClamAV and YARA rulesets on binary executables and archives. maude publishes the raw classification data to an IPFS pubsub top. You can subscribe to the topic e.g `ipfs pubsub sub maude` to see the data maude publishes on pinned files.
