@@ -3,7 +3,7 @@
 </p>
 
 # Requirements
-* libclam-dev on *nix/macOS
+* libclamav-dev on *nix/macOS
 
 # Building
 1. Create a venv e.g `python3 -m venv maude` and activate it.
