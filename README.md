@@ -4,12 +4,13 @@
 
 # Building
 1. Create a venv e.g `python3 -m venv maude` and activate it.
-2. Clone the repo and run `install.cmd` on Windows or `install.sh` on *nix/macOS.
-3. Download `models.zip` or `models.tar.gz` from the latest [release](https://github.com/allisterb/maude/releases) and unzip/untar in the root repo directory so you have a `models` directory alongside `doc` and `test` et.al. Note this step is only required when installing directly from the git repo; the release archives already include the `models` folder.
-4. Use the `start_ipfs` scripts to start an IPFS instance or set the appropriate environment variables and flags yourself based on what the script says. IPFS needs to run with the `--enable-pubsub-experiment` flag and JSON log output. See the [script](https://github.com/allisterb/maude/blob/master/start_ipfs.sh) for full details.
-5. To use [Microsoft PhotoDNA](https://www.microsoft.com/en-us/photodna) hashing you must put the `PhotoDNAx64.dll` (Windows) or `PhotoDNAx64.so` (Mac) where the maude Python interpreter can find it: e.g. on Windows in the `Scripts` folder of your maude Python venv. See [here](https://github.com/jankais3r/pyPhotoDNA) for more info.
-6. On Windows the `libclamav*` DLLs are bundled with maude however on other platforms you'll have to install it yourself using your package manager or other method. See https://github.com/Cisco-Talos/clamav/blob/main/INSTALL.md for more info.
-7. Run `maude` or `maude.sh` from the root repo folder.
+2. Clone the repo and submodules:  `git clone https://github.com/allisterb/maude --recurse-submodules`
+3. Run `install.cmd` on Windows or `install.sh` on *nix/macOS.  On systems with a small amount of memory like a VPS you may get an error like `install.sh: line 5: 382383 Killed                  pip install ext/nsfw_model` in which case you should use `install_lowmem.sh`.
+4. Download `models.zip` or `models.tar.gz` from the latest [release](https://github.com/allisterb/maude/releases) and unzip/untar in the root repo directory so you have a `models` directory alongside `doc` and `test` et.al. Note this step is only required when installing directly from the git repo; the release archives already include the `models` folder.
+5. Use the `start_ipfs` scripts to start an IPFS instance or set the appropriate environment variables and flags yourself based on what the script says. IPFS needs to run with the `--enable-pubsub-experiment` flag and JSON log output. See the [script](https://github.com/allisterb/maude/blob/master/start_ipfs.sh) for full details.
+6. To use [Microsoft PhotoDNA](https://www.microsoft.com/en-us/photodna) hashing you must put the `PhotoDNAx64.dll` (Windows) or `PhotoDNAx64.so` (Mac) where the maude Python interpreter can find it: e.g. on Windows in the `Scripts` folder of your maude Python venv. See [here](https://github.com/jankais3r/pyPhotoDNA) for more info.
+7. On Windows the `libclamav*` DLLs are bundled with maude however on other platforms you'll have to install it yourself using your package manager or other method. See https://github.com/Cisco-Talos/clamav/blob/main/INSTALL.md for more info.
+8. Run `maude` or `maude.sh` from the root repo folder.
 
 # Getting started
 To start the maude server in monitor mode say `maude[.sh] server monitor`. This will start monitoring a local IPFS node using the node's logs and will detect when a CID is pinned locally. maude tries to detect the type of file being pinned like a binary executable or archive or a document like a pdf or a media file like an image or video. It then runs different classifiers and detectors on the file like computer vision models that can detect NSFW images and videos, and malware detectors like ClamAV and YARA rulesets on binary executables and archives. maude publishes the raw classification data to an IPFS pubsub topi . You can subscribe to the topic e.g `ipfs pubsub sub maude` to see the data maude publishes on pinned files.
