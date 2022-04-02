@@ -16,7 +16,7 @@
 
 # Getting started
 1. Use the `start_ipfs` scripts to start an IPFS instance e.g `./start_ipfs.sh ipfs.log ../../go-ipfs/ipfs` or set the appropriate environment variables and flags yourself based on what the script says. IPFS needs to run with the `--enable-pubsub-experiment` flag and JSON log output. See the [script](https://github.com/allisterb/maude/blob/master/start_ipfs.sh) for full details.
-2. If this is the first you are running maude you will need to generate a keypair for your instance: `maude[.sh] crypto gen`. 
+2. If this is the first time you are running maude you will need to generate a keypair for your instance: `maude[.sh] crypto gen`. 
 3. To start the maude server in monitor mode say `maude[.sh] server monitor`. This will start monitoring a local IPFS node using the node's logs and will detect when a CID is pinned locally. maude tries to detect the type of file being pinned like a binary executable or archive or a document like a pdf or a media file like an image or video. It then runs different classifiers and detectors on the file like computer vision models that can detect NSFW images and videos, and malware detectors like ClamAV and YARA rulesets on binary executables and archives. maude publishes the raw classification data to an IPFS pubsub topic. 
 4. You can subscribe to the topic e.g `ipfs pubsub sub maude` to see the data maude publishes on pinned files.
 5. There are other maude commands for running the ML models and scanners on local files e.g. `maude image classify --nudenet /path/to/a/image` See `maude --help` for the full list of commands.
