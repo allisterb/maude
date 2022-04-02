@@ -28,10 +28,6 @@ photoDNAHash = False
 clamAVAvailable = False
 
 def process_sub_message(msg, pubtopic):
-    global nsfw_classifier
-    global nudenet_classifier
-    global perspective_classifier
-    
     peer:str = msg['from']
     seqno = multi_decode(msg['seqno'])
     topicIDs = list(map(lambda t: multi_decode(t).decode('UTF-8'), msg['topicIDs']))
