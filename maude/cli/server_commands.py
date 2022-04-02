@@ -1,3 +1,4 @@
+import os
 import threading
 from datetime import timedelta
 from time import time
@@ -92,6 +93,8 @@ def monitor(id, ipfs_node, keyfile, log_file):
     init_ipfs_client(ipfs_node)
     if keyfile == '{instance_id}.pem':
         keyfile = id + '.pem'
+    if not os.path.exists(keyfile):
+        exit_with_error(f'The private key file {keyfile} does not exist. Run `maude crypto gen` to generate a public/private-key pair.')
     with begin(f'Loading private key from {keyfile}') as op:
         crypto.private_key = crypto.load_private_key(keyfile)
         op.complete()
