@@ -83,11 +83,12 @@ def subscribe(ipfs_node, id, keyfile, perspective_api_key):
     info("maude server shutdown.")
 
 @servercmd.command(help='Monitor a local IPFS instance for pin requests for CIDs.')  
-@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--keyfile', default='{instance_id}.pem')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
-def monitor(ipfs_node, id, keyfile, log_file):
+def monitor(id, ipfs_node, keyfile, log_file):
+    maude_global.MAUDE_ID = id
     init_ipfs_client(ipfs_node)
     if keyfile == '{instance_id}.pem':
         keyfile = id + '.pem'
@@ -103,7 +104,7 @@ def monitor(ipfs_node, id, keyfile, log_file):
     server.nsfw_classifier = image.nfsw_classifier.Classifier()
     server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
     server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
-    server.photoDNAHash = image.ms_photodna.libraryAvailable()
+    server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
     server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
 
     message_queue = Queue()

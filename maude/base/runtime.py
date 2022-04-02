@@ -18,3 +18,6 @@ def _json_default(o):
         except:
             return o.__dict__
 
+def serialize_to_json_str(obj):
+    return serialize_to_json(obj).encode('utf-8')
+

@@ -1,5 +1,6 @@
 click
 rich
+colorama
 pyfiglet
 spacy
 praw
