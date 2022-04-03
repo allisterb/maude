@@ -29,6 +29,7 @@ from cli.util import exit_with_error
 @click.option('--keyfile', default='{instance_id}.pem')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
 def subscribe(id, ipfs_node, keyfile, perspective_api_key):
+    maude_global.MAUDE_ID = id
     init_ipfs_client(ipfs_node)
     if keyfile == '{instance_id}.pem':
         keyfile = id + '.pem'

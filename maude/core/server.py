@@ -38,7 +38,7 @@ def process_sub_message(msg, pubtopic):
     try:
         file_text = multi_decode(msg['data']).decode('UTF-8')
         file_is_text = True
-        info(f'Received text or text file from {peer} for topic(s) {topicIDs} with seq. no {seqno} of length {len(file_text)} chars.')
+        info(f'Received text message or file from {peer} for topic(s) {topicIDs} with seq. no {seqno} of length {len(file_text)} chars.')
     except UnicodeDecodeError as e:
         file_bytes = multi_decode(msg['data'])
         file_is_binary = True
@@ -48,10 +48,19 @@ def process_sub_message(msg, pubtopic):
         return False
     
     if (file_is_text):
+        msg_analysis = dict()
+        msg_analysis['seqno'] = seqno
         if perspective_classifier is not None:
             per_data = perspective_classifier.classify(file_text)
             info(f'Google Perspective classification data for text message or file {seqno}: {per_data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(per_data))
+            msg_analysis['perspective'] = per_data
+            signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(msg_analysis))).decode('utf-8')
+            msg_analysis['signature'] = signature
+            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(msg_analysis))
+        else:
+            info(f'Google Perspective API not available. Not analyzing text message {seqno}.')
+            return False
+    
     elif (file_is_binary):
         file_header = get_bytes(file_bytes)
         file_type_ext = guess_extension(file_header)
