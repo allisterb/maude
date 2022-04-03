@@ -34,7 +34,7 @@ def load_private_key(keyfile):
 def sign_PKCS1(msg):
     assert(private_key is not None)
     with begin('Signing message using PKCS#1 scheme') as op:
-        hash = SHA256.new(msg.encode('utf-8'))
+        hash = SHA256.new(msg)
         signer = PKCS115_SigScheme(private_key)
         signature = signer.sign(hash)
         debug("Message signature:", binascii.b2a_base64(signature))

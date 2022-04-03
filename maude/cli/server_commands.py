@@ -30,6 +30,13 @@ from cli.util import exit_with_error
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
 def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     init_ipfs_client(ipfs_node)
+    if keyfile == '{instance_id}.pem':
+        keyfile = id + '.pem'
+    if not os.path.exists(keyfile):
+        exit_with_error(f'The private key file {keyfile} does not exist. Run `maude crypto gen` to generate a public/private-key pair.')
+    with begin(f'Loading private key from {keyfile}') as op:
+        crypto.load_private_key(keyfile)
+        op.complete()
     subtopic = id + '_to' 
     pubtopic = id 
     info(f'Maude instance id is {id}.')
@@ -51,7 +58,7 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
         server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
         server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
         op.complete()
-        
+
     message_queue = Queue()
     encoded_subtopic = str(multi_encode('base64url', subtopic), 'utf-8')
     message_queue = Queue()
@@ -104,7 +111,7 @@ def monitor(id, ipfs_node, keyfile, log_file):
     if not os.path.exists(keyfile):
         exit_with_error(f'The private key file {keyfile} does not exist. Run `maude crypto gen` to generate a public/private-key pair.')
     with begin(f'Loading private key from {keyfile}') as op:
-        crypto.private_key = crypto.load_private_key(keyfile)
+        crypto.load_private_key(keyfile)
         op.complete()
     pubtopic = id
     info(f'Reading IPFS log file {log_file}...')

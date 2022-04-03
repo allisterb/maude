@@ -1,6 +1,6 @@
 import os
 import json
-import uuid
+import binascii
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
 
@@ -60,36 +60,30 @@ def process_sub_message(msg, pubtopic):
         file_is_video = is_video(file_header)
         file_analysis = dict()
         file_analysis['seqno'] = seqno
-        data = dict()
         with TemporaryDirectory() as td:
             file_name = os.path.join(td, topicIDs[0] + '_' + str(seqno))
             with open(file_name, 'wb') as fh:
                 fh.write(file_bytes)
             debug(f'Created temporary file: {file_name}.')
-        
             if file_is_image:
-                data = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
+                file_analysis['image'] = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
                 if (photoDNAHashAvailable):
-                    data['photoDNA'] = generateHash(file_name)
-                info(f'NudeNet and nsfw_model classification data for image {seqno}: {data}')
-                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-                os.remove(file_name)
-
+                    file_analysis['photoDNA'] = generateHash(file_name)
+                info(f'NudeNet and nsfw_model classification data for image {seqno}: {file_analysis["image"]}')
             elif file_is_video:
-                data = nudenet_video_classifier.classify(file_name)
-                info(f'NudeNet classification data for video {seqno}: {data}')
-                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-
+                file_analysis['video'] = nudenet_video_classifier.classify(file_name)
+                info(f'NudeNet classification data for video {seqno}: {file_analysis["video"]}')
             else:
-                data = yara_classifier.classify(file_name)
-                info(f'YARA classification data for binary {seqno}: {data}')
-                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                file_analysis['binary_yara'] = yara_classifier.classify(file_name)
+                info(f'YARA classification data for binary {seqno}: {file_analysis["binary_yara"]}')
                 if clamAVAvailable:
-                    data = clamav_classifier.classify(file_name)
-                    info(f'ClamAV classification data for binary {seqno}: {data}')
-                    publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-                os.remove(file_name)
-                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                    file_analysis['binary_clamav'] = clamav_classifier.classify(file_name)
+                    info(f'ClamAV classification data for binary {seqno}: {file_analysis["binary_clamav"]}')
+            
+            signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
+            file_analysis['signature'] = signature
+            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(file_analysis))
+            os.remove(file_name)
     return True
 
 def process_log_entry(msg, pubtopic) -> bool:
