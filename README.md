@@ -1,5 +1,7 @@
 <p align="center">
   <img src="https://dm2301files.storage.live.com/y4mcsbz3k1tSwFp5Yhk20iT2u0dWQdar8ylYMSSZ0cdd8zQgZ-6nn8-CGCbxEZm-6SeSxl7lBTw8OzQpTx1Hnj56jNZ2LvBKg8GRLUDMW_jPufXzSVq3_yZS6V1rTlOBn-YZUtXQyVn1Xiep3lGTRMMePOu5UhC1S7aPRpxu8eUgfZQuMh321ISJU7qiO8yYWKn?width=469&height=469&cropmode=none" />
+
+<img src="https://dm2301files.storage.live.com/y4mCRameKM4oSh1RlD905A4sk3uUdrQUBKwblmth7vL3e7FTqe6J-1PmoJVx5bYil_kegFBZHt7nWjag25qebNJ1An6OwwXrjfADlkL8YoEgShRfti1Lc5sffVJ4_ZCB9Jw76aUZaayx2mzYK84st7SLnQL0rluEx9pfWPS85BrAL6S_je8ZYcbmMhztvKhUkzg?width=800&height=600&cropmode=none" width="800" height="600" />
 </p>
 
 # Requirements
