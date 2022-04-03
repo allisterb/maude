@@ -30,7 +30,7 @@ if __name__ == '__main__':
     from colorama import Fore,Style
     fig = Figlet(font='chunky')
     print(Fore.CYAN, fig.renderText('maud3')) 
-    print('0.1.2' + os.linesep)
+    print('0.1.3' + os.linesep)
     print(Style.RESET_ALL)
 
     # Start thread to capture key press

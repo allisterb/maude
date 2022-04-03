@@ -1,6 +1,6 @@
 import os
 import json
-
+import uuid
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
 
@@ -29,22 +29,67 @@ clamAVAvailable = False
 
 def process_sub_message(msg, pubtopic):
     peer:str = msg['from']
-    seqno = multi_decode(msg['seqno'])
+    seqno = int.from_bytes(multi_decode(msg['seqno']), byteorder='big')
     topicIDs = list(map(lambda t: multi_decode(t).decode('UTF-8'), msg['topicIDs']))
-    data:str = ''
+    file_is_text = False
+    file_is_binary = False
+    file_text:str = ''
+    file_bytes = None 
     try:
-        data = multi_decode(msg['data']).decode('UTF-8')
+        file_text = multi_decode(msg['data']).decode('UTF-8')
+        file_is_text = True
+        info(f'Received text or text file from {peer} for topic(s) {topicIDs} with seq. no {seqno} of length {len(file_text)} chars.')
     except UnicodeDecodeError as e:
-        error(f'Message data from peer {peer} with seqno {seqno} is not UTF-8 encoded Unicode text. Skipping.')
-        return False
+        file_bytes = multi_decode(msg['data'])
+        file_is_binary = True
+        info(f'Received binary file from {peer} for topic(s) {topicIDs} with seq. no {seqno} of length {len(file_bytes)} bytes.')
     except Exception as e:
         error(f'Error decoding message data from peer {peer} with seqno {seqno}: {e}')
         return False
-    if not perspective_classifier is None:
-        per_data = perspective_classifier.classify(data)
-        publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(per_data))
-    else:
-        info('Not using Google Perspective API.')
+    
+    if (file_is_text):
+        if perspective_classifier is not None:
+            per_data = perspective_classifier.classify(file_text)
+            info(f'Google Perspective classification data for text message or file {seqno}: {per_data}')
+            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(per_data))
+    elif (file_is_binary):
+        file_header = get_bytes(file_bytes)
+        file_type_ext = guess_extension(file_header)
+        file_is_archive = is_archive(file_header)
+        file_is_image = is_image(file_header)
+        file_is_video = is_video(file_header)
+        file_analysis = dict()
+        file_analysis['seqno'] = seqno
+        data = dict()
+        with TemporaryDirectory() as td:
+            file_name = os.path.join(td, topicIDs[0] + '_' + str(seqno))
+            with open(file_name, 'wb') as fh:
+                fh.write(file_bytes)
+            debug(f'Created temporary file: {file_name}.')
+        
+            if file_is_image:
+                data = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
+                if (photoDNAHashAvailable):
+                    data['photoDNA'] = generateHash(file_name)
+                info(f'NudeNet and nsfw_model classification data for image {seqno}: {data}')
+                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                os.remove(file_name)
+
+            elif file_is_video:
+                data = nudenet_video_classifier.classify(file_name)
+                info(f'NudeNet classification data for video {seqno}: {data}')
+                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+
+            else:
+                data = yara_classifier.classify(file_name)
+                info(f'YARA classification data for binary {seqno}: {data}')
+                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                if clamAVAvailable:
+                    data = clamav_classifier.classify(file_name)
+                    info(f'ClamAV classification data for binary {seqno}: {data}')
+                    publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                os.remove(file_name)
+                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
     return True
 
 def process_log_entry(msg, pubtopic) -> bool:

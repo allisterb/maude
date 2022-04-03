@@ -24,26 +24,34 @@ from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
 
 @servercmd.command(help='Subscribe to an IPFS pubsub topic and listen for requests.')  
-@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--id', default='maude')
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
 @click.option('--keyfile', default='{instance_id}.pem')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
-def subscribe(ipfs_node, id, keyfile, perspective_api_key):
+def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     init_ipfs_client(ipfs_node)
     subtopic = id + '_to' 
     pubtopic = id 
     info(f'Maude instance id is {id}.')
     info(f'Subscribed to IPFS topic {subtopic}.')
     info(f'Publishing to IPFS topic {pubtopic}.')
-    server.nsfw_classifier = image.nfsw_classifier.Classifier()
-    server.nudenet_classifier = image.nudenet_classifier.Classifier()
-    if not perspective_api_key is None:
-        text.perspective_classifier.api_key = perspective_api_key
-        server.perspective_classifier = text.perspective_classifier.TextClassifier()
-        info(f'Google Perspective API key is {perspective_api_key[0:2]}...')
-    else:
-        info('No Google Perspective API key found.')
     
+    with begin('Loading classifiers') as op:
+        if not perspective_api_key is None:
+            text.perspective_classifier.api_key = perspective_api_key
+            server.perspective_classifier = text.perspective_classifier.TextClassifier()
+            info(f'Google Perspective API key is {perspective_api_key[0:2]}...')
+        else:
+            info('No Google Perspective API key found.')
+        server.yara_classifier = binary.yara_classifier.Classifier('binaryalert')
+        server.clamav_classifier = binary.clamav_classifier.Classifier()
+        server.nsfw_classifier = image.nfsw_classifier.Classifier()
+        server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
+        server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
+        server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
+        server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
+        op.complete()
+        
     message_queue = Queue()
     encoded_subtopic = str(multi_encode('base64url', subtopic), 'utf-8')
     message_queue = Queue()

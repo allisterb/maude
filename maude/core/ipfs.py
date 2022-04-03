@@ -4,7 +4,7 @@ import queue
 from logging import info, debug, error
 
 from pyipfs import ipfshttpclient
-
+from multibase import decode as multi_decode
 import maude_global
 from base.timer import begin
 
@@ -48,7 +48,7 @@ def subscribe(topic:str, q:queue.Queue):
             q.put('stop')
 
 def publish(topic:str, msg:str):
-    with begin(f'Publishing message with length {len(msg)} to IPFS topic {topic}') as op:
+    with begin(f'Publishing message with length {len(msg)} to IPFS topic {multi_decode(topic)}') as op:
         ipfsclient.pubsub.publish(topic, msg)
         op.complete()
 
