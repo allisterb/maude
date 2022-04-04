@@ -9,7 +9,7 @@ from multibase import decode as multi_decode, encode
 from filetype import guess_extension, get_bytes, is_archive, is_image, is_video
 
 import maude_global
-from base.runtime import serialize_to_json_str
+from base.runtime import serialize_to_json_bytes
 from core.ipfs import get_file, is_file_or_dir, publish
 from core.crypto import sign_PKCS1
 from binary.clamav_classifier import Classifier as ClamAVClassifier
@@ -59,9 +59,9 @@ def process_ipfs_sub_message(msg):
             info(f'Google Perspective classification data for text message or file {seqno}: {per_data}')
             msg_analysis['perspective'] = per_data
             msg_analysis['maude_instance'] = maude_global.MAUDE_ID
-            signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(msg_analysis))).decode('utf-8')
+            signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_bytes(msg_analysis))).decode('utf-8')
             msg_analysis['signature'] = signature
-            publish(pubtopic, serialize_to_json_str(msg_analysis))
+            publish(pubtopic, serialize_to_json_bytes(msg_analysis))
             return True
         else:
             info(f'Google Perspective API not available. Not analyzing text message {seqno}.')
@@ -97,9 +97,9 @@ def process_ipfs_sub_message(msg):
                     info(f'ClamAV classification data for binary {seqno}: {file_analysis["binary_clamav"]}')
             
         file_analysis['maude_instance'] = maude_global.MAUDE_ID
-        signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
+        signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_bytes(file_analysis))).decode('utf-8')
         file_analysis['signature'] = signature
-        publish(pubtopic, serialize_to_json_str(file_analysis))
+        publish(pubtopic, serialize_to_json_bytes(file_analysis))
     return True
 
 def process_ipfs_log_entry(msg) -> bool:
@@ -164,7 +164,7 @@ def process_ipfs_log_entry(msg) -> bool:
                 info(f'ClamAV classification data for binary {cid}: {file_analysis["binary_clamav"]}')
         
     file_analysis['maude_instance'] = maude_global.MAUDE_ID
-    signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
+    signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_bytes(file_analysis))).decode('utf-8')
     file_analysis['signature'] = signature
-    publish(pubtopic, serialize_to_json_str(file_analysis))
+    publish(pubtopic, serialize_to_json_bytes(file_analysis))
     return True

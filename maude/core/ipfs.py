@@ -47,7 +47,7 @@ def subscribe(topic:str, q:queue.Queue):
             error(ex_msg)
             q.put('stop')
 
-def publish(topic:str, msg:str):
+def publish(topic:str, msg:bytes):
     with begin(f'Publishing message with length {len(msg)} to IPFS topic {topic}') as op:
         ipfsclient.pubsub.publish(str(multi_encode('base64url', topic), 'utf-8'), msg)
         op.complete()

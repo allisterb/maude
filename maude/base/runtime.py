@@ -6,9 +6,6 @@ from maude_global import DEBUG
 
 interactive_console = False
          
-def serialize_to_json(obj):
-    return json.dumps(obj, default=_json_default, indent=2)
-
 def _json_default(o):
     if isinstance(o, numpy.float32): 
         return str(o)
@@ -19,5 +16,7 @@ def _json_default(o):
             return o.__dict__
 
 def serialize_to_json_str(obj):
-    return serialize_to_json(obj).encode('utf-8')
+    return json.dumps(obj, default=_json_default, indent=2)
 
+def serialize_to_json_bytes(obj):
+    return serialize_to_json_str(obj).encode('utf-8')
