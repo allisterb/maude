@@ -6,12 +6,11 @@ import click
 import core.crypto
 from cli.commands import crypto
 
-@crypto.command('gen', help='Generate a RSA 2048-bit public/private key pair for maude.')
-@click.argument('privkey', default='maude.pem')
-@click.argument('pubkey', default='maude_pub.pem')
-def crypto_generate_keys(privkey, pubkey):
+@crypto.command('gen', help='Generate a RSA 2048-bit public/private-key pair for a maude instance id.')
+@click.option('--id', required = True, help='The maude instance id.')
+def crypto_generate_keys(id):
    from core.crypto import generate_rsa_key_pair
-   generate_rsa_key_pair(privkey, pubkey)
+   generate_rsa_key_pair(id + '.pem', id + '_pub.pem')
 
 @crypto.command('sign', help='Sign a text message using the specified private key.')
 @click.argument('message')

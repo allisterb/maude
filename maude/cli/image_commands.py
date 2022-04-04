@@ -36,3 +36,23 @@ def photodna_hash(libpath, filename,):
     from image.ms_photodna import generateHash
     print(f'Microsoft PhotoDNA hash of {filename} is {generateHash(filename, libpath)}')
 
+@image.group()
+def mod2vec(): pass
+
+@mod2vec.command('print', help='Generate a Mod2Vec sentence and sentence vector from an image.')
+@click.argument('filename', type=click.Path(exists=True))
+def _print(filename):
+    from image.nfsw_classifier import Classifier as NsfwClassifier
+    nsfw = NsfwClassifier()
+    from image.nudenet_classifier import Classifier as NudeNetClassifier
+    nn = NudeNetClassifier()
+    from core.mod2vec import image_mod2vec
+    file_analysis = dict()
+    file_analysis['image'] = {**nn.classify(filename), **nsfw.classify(filename)}
+    info(f'Classification data for image {filename}:')
+    print(file_analysis["image"])
+    s, vec = image_mod2vec(file_analysis["image"])
+    info(f'Mod2Vec: {s}')
+    print(vec)
+
+

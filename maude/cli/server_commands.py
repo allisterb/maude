@@ -24,9 +24,9 @@ from cli.ipfs_commands import init_ipfs_client
 from cli.util import exit_with_error
 
 @servercmd.command(help='Subscribe to an IPFS pubsub topic and listen for requests.')  
-@click.option('--id', default='maude')
-@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
-@click.option('--keyfile', default='[id].pem')
+@click.option('--id', default='maude', help='The maude instance id.')
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http', help='The address of the IPFS node API to connect to.')
+@click.option('--keyfile', default='[id].pem', help='The private-key file to use.')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
 def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     maude_global.MAUDE_ID = id
@@ -101,9 +101,9 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     info("maude server shutdown.")
 
 @servercmd.command(help='Monitor a local IPFS instance for pin requests for CIDs.')  
-@click.option('--id', default='maude')
-@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
-@click.option('--keyfile', default='{instance_id}.pem')
+@click.option('--id', default='maude', help='The maude instance id.')
+@click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http', help='The address of the IPFS node API to connect to.')
+@click.option('--keyfile', default='[id].pem', help='The private-key file to use.')
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
 def monitor(id, ipfs_node, keyfile, log_file):
     maude_global.MAUDE_ID = id

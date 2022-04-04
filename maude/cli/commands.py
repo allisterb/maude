@@ -21,17 +21,14 @@ def text(): pass
 @parse.group('import', help  = 'Import training data from specified data.')
 def data_import(): pass
 
-@parse.group(help  = 'Run public/private-key cryptography tasks.')
-def crypto():
-    pass
+@parse.group(help  = 'Run public-key cryptography tasks.')
+def crypto(): pass
 
 @parse.group(help  = 'Run commands on an IPFS node.')
-def ipfs():
-    pass
+def ipfs(): pass
 
 @parse.group(help  = 'Start the maude server.')
-def server():
-    pass
+def server(): pass
 
 import cli.binary_commands
 import cli.image_commands

@@ -9,7 +9,7 @@ from multibase import decode as multi_decode, encode
 from filetype import guess_extension, get_bytes, is_archive, is_image, is_video
 
 import maude_global
-from base.runtime import serialize_to_json_bytes
+from base.runtime import serialize_to_json_bytes, serialize_to_json_str
 from core.ipfs import get_file, is_file_or_dir, publish
 from core.crypto import sign_PKCS1
 from binary.clamav_classifier import Classifier as ClamAVClassifier

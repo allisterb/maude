@@ -10,7 +10,7 @@ from base.timer import begin
 private_key:RsaKey = None
 public_key:RsaKey = None
 
-def generate_rsa_key_pair(private_key_filename='maude.pem', public_key_filename='maude_public.pem'):
+def generate_rsa_key_pair(private_key_filename, public_key_filename):
     with begin('Generating RSA 2048-bit key-pair') as op:
         keypair = generate(2048)
         private_key = keypair.export_key('PEM')

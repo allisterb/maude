@@ -4,17 +4,17 @@ from logging import info,error
 
 import maude_global
 
-# Needs corresponding entry in PYTHONPATH or .env file for development.
+# Needs corresponding entry in either PYTHONPATH or .env file for development.
 sys.path.append(os.path.join(maude_global.MAUDE_DIR, 'ext'))
 
+# Disable common warnings
 from pyipfs.ipfshttpclient.exceptions import VersionMismatch
-
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=VersionMismatch)
 
 if __name__ == '__main__': 
-    """Entry-point for CLI"""
+    # Entry-point for CLI
     from cli.util import unhandled_exception_handler
     sys.excepthook = unhandled_exception_handler
     maude_global.INTERACTIVE_CLI = True
