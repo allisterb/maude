@@ -26,12 +26,12 @@ from cli.util import exit_with_error
 @servercmd.command(help='Subscribe to an IPFS pubsub topic and listen for requests.')  
 @click.option('--id', default='maude')
 @click.option('--ipfs-node', default='/dns/localhost/tcp/5001/http')
-@click.option('--keyfile', default='{instance_id}.pem')
+@click.option('--keyfile', default='[id].pem')
 @click.argument('perspective_api_key', envvar='PERSPECTIVE_API_KEY', default=None)
 def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     maude_global.MAUDE_ID = id
     init_ipfs_client(ipfs_node)
-    if keyfile == '{instance_id}.pem':
+    if keyfile == '[id].pem':
         keyfile = id + '.pem'
     if not os.path.exists(keyfile):
         exit_with_error(f'The private key file {keyfile} does not exist. Run `maude crypto gen` to generate a public/private-key pair.')
@@ -41,8 +41,8 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
     subtopic = id + '_to' 
     pubtopic = id 
     info(f'Maude instance id is {id}.')
-    info(f'Subscribed to IPFS topic {subtopic}.')
-    info(f'Publishing to IPFS topic {pubtopic}.')
+    info(f'Subscribed to IPFS topic {subtopic} for moderation requests.')
+    info(f'Publishing moderation data to IPFS topic {pubtopic}.')
     
     with begin('Loading classifiers') as op:
         if not perspective_api_key is None:
@@ -52,20 +52,21 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
         else:
             info('No Google Perspective API key found.')
         server.yara_classifier = binary.yara_classifier.Classifier('binaryalert')
-        server.clamav_classifier = binary.clamav_classifier.Classifier()
+        server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
+        if server.clamAVAvailable:
+            server.clamav_classifier = binary.clamav_classifier.Classifier()
+        else:
+            error('ClamAV not available. Check that libclamav libraries are installed.')
         server.nsfw_classifier = image.nfsw_classifier.Classifier()
         server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
         server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
         server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
-        server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
         op.complete()
 
     message_queue = Queue()
-    encoded_subtopic = str(multi_encode('base64url', subtopic), 'utf-8')
-    message_queue = Queue()
     message_count = 0
     start_time = time()
-    message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(encoded_subtopic, message_queue), name='message_queue_thread', daemon=True)
+    message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(subtopic, message_queue), name='message_queue_thread', daemon=True)
     message_queue_thread.start()
     ipfs_subscribe_timeout = False
     stop_monitoring_queue = False
@@ -81,14 +82,14 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
                 ipfs_subscribe_timeout = True
             else:
                 message_count += 1
-                server.process_sub_message(message, pubtopic)
+                server.process_ipfs_sub_message(message)
         
         if not message_queue_thread.is_alive():
             if not(ipfs_subscribe_timeout):
                 exit_with_error(f'An error occurred monitoring the message queue for topic {subtopic}.')
             else:
                 debug('Restarting IPFS subscription after timeout.')
-                message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(encoded_subtopic, message_queue), name='message_queue_thread', daemon=True)
+                message_queue_thread = threading.Thread(target=ipfs.subscribe, args=(subtopic, message_queue), name='message_queue_thread', daemon=True)
                 message_queue_thread.start()
         
         running_time = time() - start_time
@@ -106,6 +107,7 @@ def subscribe(id, ipfs_node, keyfile, perspective_api_key):
 @click.argument('log-file', type=click.Path(exists=True), default='ipfs.log')
 def monitor(id, ipfs_node, keyfile, log_file):
     maude_global.MAUDE_ID = id
+    info(f'Maude instance id is {id}.')
     init_ipfs_client(ipfs_node)
     if keyfile == '{instance_id}.pem':
         keyfile = id + '.pem'
@@ -118,13 +120,18 @@ def monitor(id, ipfs_node, keyfile, log_file):
     info(f'Reading IPFS log file {log_file}...')
     info(f'Publishing to IPFS topic {pubtopic}...')
     
-    server.yara_classifier = binary.yara_classifier.Classifier('binaryalert')
-    server.clamav_classifier = binary.clamav_classifier.Classifier()
-    server.nsfw_classifier = image.nfsw_classifier.Classifier()
-    server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
-    server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
-    server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
-    server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
+    with begin('Loading classifiers') as op:
+        server.yara_classifier = binary.yara_classifier.Classifier('binaryalert')
+        server.clamAVAvailable = binary.clamav_classifier.libraryAvailable()
+        if server.clamAVAvailable:
+            server.clamav_classifier = binary.clamav_classifier.Classifier()
+        else:
+            error('ClamAV not available. Check that libclamav libraries are installed.')
+        server.nsfw_classifier = image.nfsw_classifier.Classifier()
+        server.nudenet_image_classifier = image.nudenet_classifier.Classifier()
+        server.nudenet_video_classifier = video.nudenet_classifier.Classifier()
+        server.photoDNAHashAvailable = image.ms_photodna.libraryAvailable()
+        op.complete()
 
     message_queue = Queue()
     message_count = 0
@@ -140,7 +147,7 @@ def monitor(id, ipfs_node, keyfile, log_file):
             if message == 'stop':
                 stop_monitoring_queue = True
             else:
-                if server.process_log_entry(message, pubtopic):
+                if server.process_ipfs_log_entry(message):
                     message_count += 1
         
         if not message_queue_thread.is_alive():
@@ -152,4 +159,5 @@ def monitor(id, ipfs_node, keyfile, log_file):
             if not log_message == last_log_message: 
                 info(f'maude server running in monitor mode for {timedelta(seconds=int(running_time))}. Processed {message_count} total log entries. Press [ENTER] to shutdown.')
                 last_log_message = log_message
+    
     info("maude server shutdown.")

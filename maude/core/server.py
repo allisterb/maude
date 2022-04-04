@@ -1,12 +1,14 @@
 import os
 import json
 import binascii
+from datetime import datetime
 from logging import info, error, debug
 from tempfile import TemporaryDirectory
 
 from multibase import decode as multi_decode, encode
 from filetype import guess_extension, get_bytes, is_archive, is_image, is_video
 
+import maude_global
 from base.runtime import serialize_to_json_str
 from core.ipfs import get_file, is_file_or_dir, publish
 from core.crypto import sign_PKCS1
@@ -27,7 +29,8 @@ perspective_classifier: PerspectiveTextClassifier = None
 photoDNAHashAvailable = False
 clamAVAvailable = False
 
-def process_sub_message(msg, pubtopic):
+def process_ipfs_sub_message(msg):
+    pubtopic = maude_global.MAUDE_ID
     peer:str = msg['from']
     seqno = int.from_bytes(multi_decode(msg['seqno']), byteorder='big')
     topicIDs = list(map(lambda t: multi_decode(t).decode('UTF-8'), msg['topicIDs']))
@@ -49,14 +52,17 @@ def process_sub_message(msg, pubtopic):
     
     if (file_is_text):
         msg_analysis = dict()
+        msg_analysis['time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         msg_analysis['seqno'] = seqno
         if perspective_classifier is not None:
             per_data = perspective_classifier.classify(file_text)
             info(f'Google Perspective classification data for text message or file {seqno}: {per_data}')
             msg_analysis['perspective'] = per_data
+            msg_analysis['maude_instance'] = maude_global.MAUDE_ID
             signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(msg_analysis))).decode('utf-8')
             msg_analysis['signature'] = signature
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(msg_analysis))
+            publish(pubtopic, serialize_to_json_str(msg_analysis))
+            return True
         else:
             info(f'Google Perspective API not available. Not analyzing text message {seqno}.')
             return False
@@ -64,11 +70,11 @@ def process_sub_message(msg, pubtopic):
     elif (file_is_binary):
         file_header = get_bytes(file_bytes)
         file_type_ext = guess_extension(file_header)
-        file_is_archive = is_archive(file_header)
         file_is_image = is_image(file_header)
         file_is_video = is_video(file_header)
         file_analysis = dict()
         file_analysis['seqno'] = seqno
+        file_analysis['time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         with TemporaryDirectory() as td:
             file_name = os.path.join(td, topicIDs[0] + '_' + str(seqno))
             with open(file_name, 'wb') as fh:
@@ -77,11 +83,12 @@ def process_sub_message(msg, pubtopic):
             if file_is_image:
                 file_analysis['image'] = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
                 if (photoDNAHashAvailable):
-                    file_analysis['photoDNA'] = generateHash(file_name)
-                info(f'NudeNet and nsfw_model classification data for image {seqno}: {file_analysis["image"]}')
+                    file_analysis['image']['photoDNA'] = generateHash(file_name)
+                info(f'Classification data for {file_type_ext} image {seqno}: {file_analysis["image"]}')
             elif file_is_video:
                 file_analysis['video'] = nudenet_video_classifier.classify(file_name)
-                info(f'NudeNet classification data for video {seqno}: {file_analysis["video"]}')
+                del file_analysis['video']['metadata']['video_path']
+                info(f'Classification data for {file_type_ext} video {seqno}: {file_analysis["video"]}')
             else:
                 file_analysis['binary_yara'] = yara_classifier.classify(file_name)
                 info(f'YARA classification data for binary {seqno}: {file_analysis["binary_yara"]}')
@@ -89,13 +96,14 @@ def process_sub_message(msg, pubtopic):
                     file_analysis['binary_clamav'] = clamav_classifier.classify(file_name)
                     info(f'ClamAV classification data for binary {seqno}: {file_analysis["binary_clamav"]}')
             
-            signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
-            file_analysis['signature'] = signature
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(file_analysis))
-            os.remove(file_name)
+        file_analysis['maude_instance'] = maude_global.MAUDE_ID
+        signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
+        file_analysis['signature'] = signature
+        publish(pubtopic, serialize_to_json_str(file_analysis))
     return True
 
-def process_log_entry(msg, pubtopic) -> bool:
+def process_ipfs_log_entry(msg) -> bool:
+    pubtopic = maude_global.MAUDE_ID
     log_entry = json.loads(msg)
     cid = ''
     if log_entry['logger'] =='bitswap' and log_entry['msg'] == 'Bitswap.ProvideWorker.Start':
@@ -114,26 +122,22 @@ def process_log_entry(msg, pubtopic) -> bool:
         return False
     info(f'File to be analyzed is {cid}.')
     file_bytes:bytes = get_file(cid)
-    file_text:str = ''
     file_header = get_bytes(file_bytes)
     file_type_ext = guess_extension(file_header)
     if (file_type_ext == None):
         try:
-            file_text = file_bytes.decode('utf-8')
+            _ = file_bytes.decode('utf-8')
             info('The file can be decoded as UTF-8...assuming file type is txt.')
             file_type_ext = 'txt'
         except UnicodeDecodeError as _:
             file_type_ext = 'unknown_bin'
     info(f'{cid} has type {file_type_ext} and length {len(file_bytes)} bytes.')
-    file_is_archive = is_archive(file_header)
     file_is_image = is_image(file_header)
     file_is_video = is_video(file_header)
     file_is_text = file_type_ext == 'txt'
-    file_is_binary = file_type_ext == 'unknown_bin'
     file_analysis = dict()
     file_analysis['cid'] = cid
-    data = dict()
-
+    file_analysis['time'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     with TemporaryDirectory() as td:
         file_name = os.path.join(td, cid)
         with open(file_name, 'wb') as fh:
@@ -141,36 +145,26 @@ def process_log_entry(msg, pubtopic) -> bool:
         debug(f'Created temporary file: {file_name}.')
     
         if file_is_text:
-            data = yara_classifier.classify(file_name)
-            info(f'YARA classification for binary {cid}: {data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-
+            file_analysis['text_yara'] = yara_classifier.classify(file_name)
+            info(f'YARA classification for text {cid}: {file_analysis["text_yara"]}')
         elif file_is_image:
-            data = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
+            file_analysis['image'] = {**nudenet_image_classifier.classify(file_name), **nsfw_classifier.classify(file_name)}
             if (photoDNAHashAvailable):
-                data['photoDNA'] = generateHash(file_name)
-            info(f'NudeNet and nsfw_model classification data for image {cid}: {data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-            os.remove(file_name)
-
+                file_analysis['image']['photoDNA'] = generateHash(file_name)
+            info(f'Classification data for image {cid}: {file_analysis["image"]}')
         elif file_is_video:
-            data = nudenet_video_classifier.classify(file_name)
-            info(f'NudeNet classification data for video {cid}: {data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-
+            file_analysis['video'] = nudenet_video_classifier.classify(file_name)
+            del file_analysis['video']['metadata']['video_path']
+            info(f'Classification data for video {cid}: {file_analysis["video"]}')
         else:
-            data = yara_classifier.classify(file_name)
-            info(f'YARA classification data for binary {cid}: {data}')
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+            file_analysis['yara'] = yara_classifier.classify(file_name)
+            info(f'YARA classification data for binary {cid}: {file_analysis["binary_yara"]}')
             if clamAVAvailable:
-                data = clamav_classifier.classify(file_name)
-                info(f'ClamAV classification data for binary {cid}: {data}')
-                publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
-            os.remove(file_name)
-            publish(str(encode('base64url', pubtopic), 'utf-8'), serialize_to_json_str(data))
+                file_analysis["binary_clamav"] = clamav_classifier.classify(file_name)
+                info(f'ClamAV classification data for binary {cid}: {file_analysis["binary_clamav"]}')
         
-          
-            
-
-
-
+    file_analysis['maude_instance'] = maude_global.MAUDE_ID
+    signature = binascii.b2a_base64(sign_PKCS1(serialize_to_json_str(file_analysis))).decode('utf-8')
+    file_analysis['signature'] = signature
+    publish(pubtopic, serialize_to_json_str(file_analysis))
+    return True

@@ -4,7 +4,7 @@ import queue
 from logging import info, debug, error
 
 from pyipfs import ipfshttpclient
-from multibase import decode as multi_decode
+from multibase import decode as multi_decode, encode as multi_encode
 import maude_global
 from base.timer import begin
 
@@ -34,7 +34,7 @@ def get_config(key=None):
 def subscribe(topic:str, q:queue.Queue):
     debug(f'Subscribing to IPFS topic {topic}...')
     try:
-        with ipfsclient.pubsub.subscribe(topic) as sub:
+        with ipfsclient.pubsub.subscribe(str(multi_encode('base64url', topic), 'utf-8')) as sub:
             debug(f'Subscribed.')
             for message in sub:
                 q.put(message)
@@ -48,8 +48,8 @@ def subscribe(topic:str, q:queue.Queue):
             q.put('stop')
 
 def publish(topic:str, msg:str):
-    with begin(f'Publishing message with length {len(msg)} to IPFS topic {multi_decode(topic)}') as op:
-        ipfsclient.pubsub.publish(topic, msg)
+    with begin(f'Publishing message with length {len(msg)} to IPFS topic {topic}') as op:
+        ipfsclient.pubsub.publish(str(multi_encode('base64url', topic), 'utf-8'), msg)
         op.complete()
 
 def tail_log_file(file, q:queue.Queue):
