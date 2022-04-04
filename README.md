@@ -1,11 +1,11 @@
 <p align="center">
   <img src="https://dm2301files.storage.live.com/y4mcsbz3k1tSwFp5Yhk20iT2u0dWQdar8ylYMSSZ0cdd8zQgZ-6nn8-CGCbxEZm-6SeSxl7lBTw8OzQpTx1Hnj56jNZ2LvBKg8GRLUDMW_jPufXzSVq3_yZS6V1rTlOBn-YZUtXQyVn1Xiep3lGTRMMePOu5UhC1S7aPRpxu8eUgfZQuMh321ISJU7qiO8yYWKn?width=469&height=469&cropmode=none" />
 
-<img src="https://github.com/allisterb/maude/blob/master/doc/screencap1.webp?raw=true" type="image/webp" width="800" height="600" />
+<img src="https://github.com/allisterb/maude/blob/master/doc/screencap1.webp?raw=true" type="image/webp" width="640" height="480" />
 </p>
 
 # Requirements
-* libclamav-dev on *nix/macOS
+* libclamav-dev (*nix/macOS)
 
 # Building
 1. Create a venv e.g `python3 -m venv maude` and activate it.
