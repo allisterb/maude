@@ -32,21 +32,19 @@ def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7)
     assert "sexy" in data
     category = ''
     if data["porn"] >= 0.9:
-        category = 'very likely pornographic'
+        category = ' image that is very likely pornographic'
     elif data["porn"] >= threshold:
-        category = 'likely pornographic'
+        category = ' image that is likely pornographic'
     elif data["hentai"] >= 0.9:
-        category = 'very likely hentai or adult cartoon'
+        category = ' image that is very likely hentai or adult cartoon'
     elif data["hentai"] >= threshold:
-        category = 'likely hentai or adult cartoon'
+        category = ' image that is likely hentai or adult cartoon'
     elif data["sexy"] >= 0.9:
-        category = 'very likely adult or racy content'
+        category = ' image that is very likely adult or racy content'
     elif data["sexy"] >= threshold:
-        category = 'likely adult or racy'
-    else: category = 'probably not pornographic or sexual or racy content'
+        category = 'image that is likely adult or racy'
+    else: category = ' image'
 
     assert "objects" in data
-    s = 'This is a {}{} image that is {}.'.format(size, nsfw, category)
+    s = 'This is a {}{}{}.'.format(size, nsfw, category)
     return s, embedding.get_vector(s)
-
- 

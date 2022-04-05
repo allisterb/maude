@@ -43,7 +43,7 @@ def mod2vec(): pass
 @mod2vec.command('print', help='Generate a Mod2Vec sentence and sentence vector from an image.')
 @click.argument('filename', type=click.Path(exists=True))
 @click.option('--spacy', 'embedding', flag_value='spacy', default=True,  help='Use the default spaCy sentence embedding.')
-@click.option('--use', 'embedding', flag_value='use', help='Use the spaCy universal sentence encoder.')
+@click.option('--use', 'embedding', flag_value='use', help='Use Google universal sentence encoder.')
 def _print(filename, embedding):
     from image.nfsw_classifier import Classifier as NsfwClassifier
     nsfw = NsfwClassifier()
@@ -56,7 +56,10 @@ def _print(filename, embedding):
     print(file_analysis["image"])
     se = None
     if embedding == 'spacy':
-        from text.spacy_embedding import Embedding as spaCyEmbedding
+        from text.spacy_embedding import WordAverageEmbedding as spaCyEmbedding
+        se = spaCyEmbedding()
+    elif embedding == 'use':
+        from text.spacy_embedding import UseEmbedding as spaCyEmbedding
         se = spaCyEmbedding()
     else:
         error(f'Invalid sentence embedding: {embedding}.')
@@ -75,6 +78,15 @@ def compare(filename1, filename2, embedding):
     from image.nudenet_classifier import Classifier as NudeNetClassifier
     nn = NudeNetClassifier()
     from core.mod2vec import image_mod2vec
+    se = None
+    if embedding == 'spacy':
+        from text.spacy_embedding import WordAverageEmbedding as spaCyEmbedding
+        se = spaCyEmbedding()
+    elif embedding == 'use':
+        from text.spacy_embedding import UseEmbedding as spaCyEmbedding
+        se = spaCyEmbedding()
+    else:
+        error(f'Invalid sentence embedding: {embedding}.')
     file_analysis1 = dict()
     file_analysis1['image'] = {**nn.classify(filename1), **nsfw.classify(filename1)}
     info(f'Classification data for image {filename1}:')
@@ -82,14 +94,12 @@ def compare(filename1, filename2, embedding):
     file_analysis2['image'] = {**nn.classify(filename2), **nsfw.classify(filename2)}
     info(f'Classification data for image {filename2}:')
     print(file_analysis2["image"])
-    s1, vec1 = image_mod2vec(file_analysis1["image"])
-    s2, vec2 = image_mod2vec(file_analysis2["image"])
+    s1, vec1 = image_mod2vec(file_analysis1["image"], se)
+    s2, vec2 = image_mod2vec(file_analysis2["image"], se)
     info(f'Mod2Vec:')
     info(f'1. {s1}')
     info(f'2. {s2}')
-    from text.spacy_embedding import Embedding
-    spacy = Embedding()
-    print (spacy.similarity(s1, s2))
+    print (se.similarity(s1, s2))
     #print(vec1)
 
 
