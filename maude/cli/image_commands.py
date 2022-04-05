@@ -1,9 +1,10 @@
-from hashlib import sha3_512
 import sys
 from logging import info, error
 
 import click
 from rich import print
+from numpy import dot
+from numpy.linalg import norm
 
 from cli.commands import image
 from cli.util import exit_with_error
@@ -70,8 +71,8 @@ def _print(filename, embedding):
 @mod2vec.command(help='Generate a Mod2Vec sentence and sentence vector from an image.')
 @click.argument('filename1', type=click.Path(exists=True))
 @click.argument('filename2', type=click.Path(exists=True))
-@click.option('--spacy', 'embedding', flag_value='spacy', default=True,  help='Use the default spaCy sentence embedding.')
-@click.option('--use', 'embedding', flag_value='use', help='Use the spaCy universal sentence encoder.')
+@click.option('--spacy', 'embedding', flag_value='spacy', help='Use the default spaCy sentence embedding.')
+@click.option('--use', 'embedding', flag_value='use', default=True, help='Use the spaCy universal sentence encoder.')
 def compare(filename1, filename2, embedding):
     from image.nfsw_classifier import Classifier as NsfwClassifier
     nsfw = NsfwClassifier()
@@ -90,16 +91,15 @@ def compare(filename1, filename2, embedding):
     file_analysis1 = dict()
     file_analysis1['image'] = {**nn.classify(filename1), **nsfw.classify(filename1)}
     info(f'Classification data for image {filename1}:')
+    print(file_analysis1["image"])
     file_analysis2 = dict()
     file_analysis2['image'] = {**nn.classify(filename2), **nsfw.classify(filename2)}
     info(f'Classification data for image {filename2}:')
     print(file_analysis2["image"])
     s1, vec1 = image_mod2vec(file_analysis1["image"], se)
     s2, vec2 = image_mod2vec(file_analysis2["image"], se)
-    info(f'Mod2Vec:')
+    similarity = dot(vec1, vec2) / (norm(vec1) * norm(vec2))
+    info(f'Mod2Vec comparison of {filename1} and {filename2}:')
     info(f'1. {s1}')
     info(f'2. {s2}')
-    print (se.similarity(s1, s2))
-    #print(vec1)
-
-
+    info(f'Similarity: {similarity}.')

@@ -22,7 +22,6 @@ class WordAverageEmbedding(SentenceEmbedding):
         doc2 = self.nlp(s2)
         return doc1.similarity(doc2)
 
-
 class UseEmbedding(SentenceEmbedding):
     def __init__(self, args=[]):
             super().__init__("Google Universal Sentence Encoder sentence encoding", args)
@@ -42,5 +41,3 @@ class UseEmbedding(SentenceEmbedding):
         doc1 = self.nlp(s1)
         doc2 = self.nlp(s2)
         return doc1.similarity(doc2)
-        
-        
