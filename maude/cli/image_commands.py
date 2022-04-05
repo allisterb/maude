@@ -42,7 +42,9 @@ def mod2vec(): pass
 
 @mod2vec.command('print', help='Generate a Mod2Vec sentence and sentence vector from an image.')
 @click.argument('filename', type=click.Path(exists=True))
-def _print(filename):
+@click.option('--spacy', 'embedding', flag_value='spacy', default=True,  help='Use the default spaCy sentence embedding.')
+@click.option('--use', 'embedding', flag_value='use', help='Use the spaCy universal sentence encoder.')
+def _print(filename, embedding):
     from image.nfsw_classifier import Classifier as NsfwClassifier
     nsfw = NsfwClassifier()
     from image.nudenet_classifier import Classifier as NudeNetClassifier
@@ -52,14 +54,22 @@ def _print(filename):
     file_analysis['image'] = {**nn.classify(filename), **nsfw.classify(filename)}
     info(f'Classification data for image {filename}:')
     print(file_analysis["image"])
-    s, vec = image_mod2vec(file_analysis["image"])
+    se = None
+    if embedding == 'spacy':
+        from text.spacy_embedding import Embedding as spaCyEmbedding
+        se = spaCyEmbedding()
+    else:
+        error(f'Invalid sentence embedding: {embedding}.')
+    s, vec = image_mod2vec(file_analysis["image"], se)
     info(f'Mod2Vec: {s}')
     print(vec)
 
 @mod2vec.command(help='Generate a Mod2Vec sentence and sentence vector from an image.')
 @click.argument('filename1', type=click.Path(exists=True))
 @click.argument('filename2', type=click.Path(exists=True))
-def compare(filename1, filename2):
+@click.option('--spacy', 'embedding', flag_value='spacy', default=True,  help='Use the default spaCy sentence embedding.')
+@click.option('--use', 'embedding', flag_value='use', help='Use the spaCy universal sentence encoder.')
+def compare(filename1, filename2, embedding):
     from image.nfsw_classifier import Classifier as NsfwClassifier
     nsfw = NsfwClassifier()
     from image.nudenet_classifier import Classifier as NudeNetClassifier
@@ -77,9 +87,9 @@ def compare(filename1, filename2):
     info(f'Mod2Vec:')
     info(f'1. {s1}')
     info(f'2. {s2}')
-    from text.spacy_similarity import TextSimilarity
-    sim = TextSimilarity()
-    print (sim.similarity(s1, s2))
+    from text.spacy_embedding import Embedding
+    spacy = Embedding()
+    print (spacy.similarity(s1, s2))
     #print(vec1)
 
 

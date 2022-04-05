@@ -1,8 +1,8 @@
 from logging import info, debug, error
 
-from text.spacy import nlp
+from core.text_embedding import SentenceEmbedding
 
-def image_mod2vec(data:dict, threshold:float = 0.7):
+def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7):
     assert 'height' in data and 'width' in data
     area = data['height'] * data['width']
     size = '' 
@@ -46,15 +46,7 @@ def image_mod2vec(data:dict, threshold:float = 0.7):
     else: category = 'probably not pornographic or sexual or racy content'
 
     assert "objects" in data
-    
     s = 'This is a {}{} image that is {}.'.format(size, nsfw, category)
-    return s, nlp(s).vector
-
-
-
-
-
-
-
+    return s, embedding.get_vector(s)
 
  

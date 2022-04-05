@@ -10,8 +10,11 @@ class Embedding(SentenceEmbedding):
     def __init__(self, args=[]):
             super().__init__("spaCy sentence embedding", args)
 
-    def print_model_info(self):
+    def get_model_info(self):
         pass
+
+    def get_vector(self, sentence:str):
+        return nlp(sentence).vector
 
     def similarity(self, s1:str, s2:str) -> float: 
         """Compute similarity of 2 sentences"""
