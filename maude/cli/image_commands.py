@@ -1,3 +1,4 @@
+from hashlib import sha3_512
 import sys
 from logging import info, error
 
@@ -36,7 +37,7 @@ def photodna_hash(libpath, filename,):
     from image.ms_photodna import generateHash
     print(f'Microsoft PhotoDNA hash of {filename} is {generateHash(filename, libpath)}')
 
-@image.group()
+@image.group(help='Generate Mod2Vec sentences and sentence vectors from images.')
 def mod2vec(): pass
 
 @mod2vec.command('print', help='Generate a Mod2Vec sentence and sentence vector from an image.')
@@ -54,5 +55,31 @@ def _print(filename):
     s, vec = image_mod2vec(file_analysis["image"])
     info(f'Mod2Vec: {s}')
     print(vec)
+
+@mod2vec.command(help='Generate a Mod2Vec sentence and sentence vector from an image.')
+@click.argument('filename1', type=click.Path(exists=True))
+@click.argument('filename2', type=click.Path(exists=True))
+def compare(filename1, filename2):
+    from image.nfsw_classifier import Classifier as NsfwClassifier
+    nsfw = NsfwClassifier()
+    from image.nudenet_classifier import Classifier as NudeNetClassifier
+    nn = NudeNetClassifier()
+    from core.mod2vec import image_mod2vec
+    file_analysis1 = dict()
+    file_analysis1['image'] = {**nn.classify(filename1), **nsfw.classify(filename1)}
+    info(f'Classification data for image {filename1}:')
+    file_analysis2 = dict()
+    file_analysis2['image'] = {**nn.classify(filename2), **nsfw.classify(filename2)}
+    info(f'Classification data for image {filename2}:')
+    print(file_analysis2["image"])
+    s1, vec1 = image_mod2vec(file_analysis1["image"])
+    s2, vec2 = image_mod2vec(file_analysis2["image"])
+    info(f'Mod2Vec:')
+    info(f'1. {s1}')
+    info(f'2. {s2}')
+    from text.spacy_similarity import TextSimilarity
+    sim = TextSimilarity()
+    print (sim.similarity(s1, s2))
+    #print(vec1)
 
 

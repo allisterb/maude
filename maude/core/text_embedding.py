@@ -2,8 +2,8 @@ import os, sys
 import abc
 from logging import info, error, warn, debug
 
-class TextSimilarity(abc.ABC):
-    """Computes the similarity of 2 sentences using word vectors."""
+class SentenceEmbedding(abc.ABC):
+    """Represent sentences as vectors"""
 
     def __init__(self, name, args=[]):
         self.name = name
