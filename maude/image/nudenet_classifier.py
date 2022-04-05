@@ -2,8 +2,7 @@ import os
 from logging import info
 
 import PIL
-import tensorflow as tf
-import onnxruntime
+
 
 import maude_global
 from base.timer import begin
@@ -15,6 +14,8 @@ class Classifier(ImageClassifier):
 
     def __init__(self):
         super().__init__("NudeNet machine learning model", os.path.join(maude_global.MAUDE_DIR, 'models', 'nudenet'))
+        import tensorflow as tf
+        import onnxruntime
         with begin(f'Loading image classification model: {self.model_dir}') as op:
             if not maude_global.DEBUG:
                 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)  # or any {DEBUG, INFO, WARN, ERROR, FATAL}
