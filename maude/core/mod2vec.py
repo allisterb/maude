@@ -17,11 +17,11 @@ def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7)
     assert "unsafe" in data and "safe" in data
     nsfw = ''
     if data["unsafe"] >= 0.9:
-        nsfw = 'very likely NSFW image'
+        nsfw = 'NSFW image'
     elif data["unsafe"] >= threshold:
         nsfw = 'likely NSFW image'
     elif data["safe"] >= 0.9:
-        nsfw = 'very likely work-safe image'
+        nsfw = 'work-safe image'
     elif data["safe"] >= threshold:
         nsfw = 'likely work-safe image'
     else: nsfw = 'image'
@@ -33,15 +33,15 @@ def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7)
     assert "sexy" in data
     category = ''
     if data["porn"] >= 0.9:
-        category = ' that is very likely pornographic'
+        category = ' that is pornographic'
     elif data["porn"] >= threshold:
         category = ' that is likely pornographic'
     elif data["hentai"] >= 0.9:
-        category = 'that is very likely hentai or an adult cartoon'
+        category = 'that is hentai or an adult cartoon'
     elif data["hentai"] >= threshold:
         category = ' that is likely hentai or an adult cartoon'
     elif data["sexy"] >= 0.9:
-        category = ' that is very likely adult or racy content'
+        category = ' that is adult or racy content'
     elif data["sexy"] >= threshold:
         category = ' that is likely adult or racy content'
 

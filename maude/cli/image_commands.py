@@ -43,8 +43,8 @@ def mod2vec(): pass
 
 @mod2vec.command('print', help='Generate a Mod2Vec sentence and sentence vector from an image.')
 @click.argument('filename', type=click.Path(exists=True))
-@click.option('--spacy', 'embedding', flag_value='spacy', default=True,  help='Use the default spaCy sentence embedding.')
-@click.option('--use', 'embedding', flag_value='use', help='Use Google universal sentence encoder.')
+@click.option('--spacy', 'embedding', flag_value='spacy', help='Use the default spaCy sentence embedding.')
+@click.option('--use', 'embedding', flag_value='use', default=True, help='Use Google universal sentence encoder.')
 def _print(filename, embedding):
     from image.nfsw_classifier import Classifier as NsfwClassifier
     nsfw = NsfwClassifier()
@@ -65,7 +65,8 @@ def _print(filename, embedding):
     else:
         error(f'Invalid sentence embedding: {embedding}.')
     s, vec = image_mod2vec(file_analysis["image"], se)
-    info(f'Mod2Vec: {s}')
+    info(f'Mod2Vec of {filename}:')
+    print(s)
     print(vec)
 
 @mod2vec.command(help='Generate a Mod2Vec sentence and sentence vector from an image.')
