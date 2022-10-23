@@ -1,13 +1,13 @@
-import sys
 import json
-import numpy
-from logging import error
+import string
+
+from numpy import float32
 from maude_global import DEBUG
 
 interactive_console = False
          
 def _json_default(o):
-    if isinstance(o, numpy.float32): 
+    if isinstance(o, float32): 
         return str(o)
     else:
         try:
@@ -20,3 +20,14 @@ def serialize_to_json_str(obj):
 
 def serialize_to_json_bytes(obj):
     return serialize_to_json_str(obj).encode('utf-8')
+
+class PluralFormatter(string.Formatter):
+    def format_field(self, value, format_spec):
+        if format_spec.startswith('plural,'):
+            words = format_spec.split(',')
+            if value == 1:
+                return words[1]
+            else:
+                return words[2]
+        else:
+            return super().format_field(value, format_spec)

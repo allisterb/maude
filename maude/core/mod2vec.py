@@ -1,5 +1,3 @@
-from logging import info, debug, error
-
 from core.text_embedding import SentenceEmbedding
 
 def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7):
@@ -46,5 +44,7 @@ def image_mod2vec(data:dict, embedding:SentenceEmbedding, threshold:float = 0.7)
         category = ' that is likely adult or racy content'
 
     assert "objects" in data
+    #certain_objects = [str(o['label']).replace('_F', '').replace('_', ' ').lower() for o in data["objects"] if o['score'] >= 0.9]
+    #print(certain_objects)
     s = 'This is a {} {}{}.'.format(size, nsfw, category)
     return s, embedding.get_vector(s)
